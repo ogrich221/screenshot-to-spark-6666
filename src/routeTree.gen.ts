@@ -10,19 +10,39 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BusinessRouteImport } from './routes/business'
+import { Route as CardsRouteImport } from './routes/cards'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LoansRouteImport } from './routes/loans'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SavingsRouteImport } from './routes/savings'
 import { Route as SecurityRouteImport } from './routes/security'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TransfersRouteImport } from './routes/transfers'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BusinessRoute = BusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CardsRoute = CardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoansRoute = LoansRouteImport.update({
+  id: '/loans',
+  path: '/loans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -40,43 +60,104 @@ const SecurityRoute = SecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransfersRoute = TransfersRouteImport.update({
+  id: '/transfers',
+  path: '/transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/business': typeof BusinessRoute
+  '/cards': typeof CardsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/loans': typeof LoansRoute
   '/pricing': typeof PricingRoute
   '/savings': typeof SavingsRoute
   '/security': typeof SecurityRoute
+  '/support': typeof SupportRoute
+  '/transfers': typeof TransfersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/business': typeof BusinessRoute
+  '/cards': typeof CardsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/loans': typeof LoansRoute
   '/pricing': typeof PricingRoute
   '/savings': typeof SavingsRoute
   '/security': typeof SecurityRoute
+  '/support': typeof SupportRoute
+  '/transfers': typeof TransfersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/business': typeof BusinessRoute
+  '/cards': typeof CardsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/loans': typeof LoansRoute
   '/pricing': typeof PricingRoute
   '/savings': typeof SavingsRoute
   '/security': typeof SecurityRoute
+  '/support': typeof SupportRoute
+  '/transfers': typeof TransfersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/how-it-works' | '/pricing' | '/savings' | '/security'
+  fullPaths:
+    | '/'
+    | '/business'
+    | '/cards'
+    | '/how-it-works'
+    | '/loans'
+    | '/pricing'
+    | '/savings'
+    | '/security'
+    | '/support'
+    | '/transfers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/how-it-works' | '/pricing' | '/savings' | '/security'
-  id: '__root__' | '/' | '/how-it-works' | '/pricing' | '/savings' | '/security'
+  to:
+    | '/'
+    | '/business'
+    | '/cards'
+    | '/how-it-works'
+    | '/loans'
+    | '/pricing'
+    | '/savings'
+    | '/security'
+    | '/support'
+    | '/transfers'
+  id:
+    | '__root__'
+    | '/'
+    | '/business'
+    | '/cards'
+    | '/how-it-works'
+    | '/loans'
+    | '/pricing'
+    | '/savings'
+    | '/security'
+    | '/support'
+    | '/transfers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BusinessRoute: typeof BusinessRoute
+  CardsRoute: typeof CardsRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  LoansRoute: typeof LoansRoute
   PricingRoute: typeof PricingRoute
   SavingsRoute: typeof SavingsRoute
   SecurityRoute: typeof SecurityRoute
+  SupportRoute: typeof SupportRoute
+  TransfersRoute: typeof TransfersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -88,11 +169,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/business': {
+      id: '/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof BusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cards': {
+      id: '/cards'
+      path: '/cards'
+      fullPath: '/cards'
+      preLoaderRoute: typeof CardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-it-works': {
       id: '/how-it-works'
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loans': {
+      id: '/loans'
+      path: '/loans'
+      fullPath: '/loans'
+      preLoaderRoute: typeof LoansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -116,15 +218,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SecurityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transfers': {
+      id: '/transfers'
+      path: '/transfers'
+      fullPath: '/transfers'
+      preLoaderRoute: typeof TransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BusinessRoute: BusinessRoute,
+  CardsRoute: CardsRoute,
   HowItWorksRoute: HowItWorksRoute,
+  LoansRoute: LoansRoute,
   PricingRoute: PricingRoute,
   SavingsRoute: SavingsRoute,
   SecurityRoute: SecurityRoute,
+  SupportRoute: SupportRoute,
+  TransfersRoute: TransfersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

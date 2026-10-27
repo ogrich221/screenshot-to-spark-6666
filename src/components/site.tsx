@@ -22,10 +22,29 @@ export const useT = () => {
 
 const PAGES = ["/how-it-works", "/pricing", "/savings", "/security"] as const;
 
+type MenuTo = "/" | (typeof PAGES)[number] | "/cards" | "/transfers" | "/business" | "/loans" | "/support";
+const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
+  { group: "Banking", items: [
+    ["/", "Home", "Overview", "⌂"],
+    ["/how-it-works", "Personal Banking", "Everyday account", "◎"],
+    ["/cards", "Cards", "Debit & metal cards", "▭"],
+    ["/transfers", "Transfers", "Send money worldwide", "⇄"],
+  ] },
+  { group: "Grow", items: [
+    ["/savings", "Savings & Goals", "Up to 4.1% interest", "◔"],
+    ["/loans", "Loans", "Clear, fixed rates", "◇"],
+    ["/business", "Business", "Accounts for teams", "▦"],
+    ["/pricing", "Fees & Pricing", "Every fee listed", "$"],
+  ] },
+  { group: "Help", items: [
+    ["/security", "Security Centre", "How we protect you", "◈"],
+    ["/support", "Help & Support", "Real people, 24/7", "?"],
+  ] },
+];
+
 function DashboardMenu() {
   const { t } = useT();
   const [open, setOpen] = useState(false);
-  const [show, setShow] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
@@ -40,23 +59,21 @@ function DashboardMenu() {
         <span aria-hidden className="flex flex-col gap-1">{[0, 1, 2, 3].map((i) => <span key={i} className="block h-0.5 w-5 rounded bg-primary-foreground" />)}</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-14 border border-border bg-popover shadow-soft z-50 w-72 rounded-3xl p-4 animate-in fade-in slide-in-from-top-2">
-          <div className="rounded-2xl bg-secondary p-4">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Total balance</span>
-              <button onClick={() => setShow(!show)} className="rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">{show ? "Hide" : "Show"}</button>
+        <div className="absolute right-0 top-14 z-50 max-h-[80vh] w-[min(22rem,calc(100vw-2.5rem))] overflow-y-auto rounded-3xl border border-border bg-popover p-4 shadow-soft animate-in fade-in slide-in-from-top-2">
+          {MENU.map((g) => (
+            <div key={g.group} className="mb-3">
+              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{g.group}</p>
+              <nav className="grid grid-cols-2 gap-2">
+                {g.items.map(([to, label, desc, icon]) => (
+                  <Link key={to} to={to} onClick={() => setOpen(false)} className="flex gap-2.5 rounded-2xl bg-muted p-3 hover:bg-secondary" activeProps={{ className: "ring-1 ring-primary" }} activeOptions={{ exact: true }}>
+                    <span aria-hidden className="text-primary">{icon}</span>
+                    <span><span className="block text-sm font-medium leading-tight">{label}</span><span className="mt-0.5 block text-xs text-muted-foreground">{desc}</span></span>
+                  </Link>
+                ))}
+              </nav>
             </div>
-            <p className="mt-1 font-display text-2xl font-bold">{show ? "$12,480.52" : "$••••••"}</p>
-            <div className="mt-3 h-1.5 rounded-full bg-muted"><div className="h-full w-3/4 rounded-full bg-gold" /></div>
-            <p className="mt-1.5 text-xs text-muted-foreground">Holiday goal · 74%</p>
-          </div>
-          <nav className="mt-3 grid grid-cols-2 gap-2">
-            <Link to="/" onClick={() => setOpen(false)} className="rounded-2xl bg-muted px-3 py-3 text-sm font-medium hover:bg-secondary" activeProps={{ className: "ring-1 ring-primary" }} activeOptions={{ exact: true }}>Home</Link>
-            {PAGES.map((p, i) => (
-              <Link key={p} to={p} onClick={() => setOpen(false)} className="rounded-2xl bg-muted px-3 py-3 text-sm font-medium hover:bg-secondary" activeProps={{ className: "ring-1 ring-primary" }}>{t.nav[i]}</Link>
-            ))}
-            <a href="#open" className="rounded-2xl bg-gold px-3 py-3 text-sm font-semibold text-primary-foreground">{t.cta}</a>
-          </nav>
+          ))}
+          <a href="#open" onClick={() => setOpen(false)} className="mt-1 flex h-12 items-center justify-center rounded-2xl bg-gold text-sm font-semibold text-primary-foreground">{t.cta}</a>
         </div>
       )}
     </div>
@@ -176,6 +193,23 @@ export function Stats({ items }: { items: [string, string][] }) {
           <div key={l}><dt className="font-display text-3xl font-bold text-gold">{v}</dt><dd className="mt-1 text-sm text-muted-foreground">{l}</dd></div>
         ))}
       </dl>
+    </section>
+  );
+}
+
+export function Features({ title, items }: { title?: string; items: [string, string][] }) {
+  return (
+    <section className="mx-auto max-w-6xl px-5 pt-4">
+      {title && <h2 className="mb-10 text-3xl font-bold md:text-4xl">{title}</h2>}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map(([h, p]) => (
+          <div key={h} className="glass rounded-3xl p-8">
+            <span aria-hidden className="block h-1 w-10 rounded-full bg-gold" />
+            <h3 className="mt-5 text-xl font-semibold">{h}</h3>
+            <p className="mt-2 text-muted-foreground">{p}</p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
