@@ -112,7 +112,7 @@ export const issueCard = createServerFn({ method: "POST" })
     const rnd = new Uint32Array(1); crypto.getRandomValues(rnd);
     const now = new Date();
     const expires = `${String(now.getUTCMonth() + 1).padStart(2, "0")}/${String((now.getUTCFullYear() + 4) % 100).padStart(2, "0")}`;
-    const { error } = await supabaseAdmin.from("customer_cards").insert({ user_id: data.userId, card_type: data.cardType, cardholder_name: data.cardholderName, last4: String(rnd[0] % 10000).padStart(4, "0"), expires, credit_limit: data.creditLimit });
+    const { error } = await supabaseAdmin.from("customer_cards").insert({ user_id: data.userId, card_type: data.cardType, cardholder_name: data.cardholderName, last4: String((rnd[0] ?? 0) % 10000).padStart(4, "0"), expires, credit_limit: data.creditLimit });
     if (error) return { ok: false as const, error: "Could not issue the card." };
     return { ok: true as const };
   });
