@@ -3,13 +3,13 @@ import { Search } from "lucide-react";
 import { customers } from "@/lib/admin-data";
 import { Empty, PageHeader, Panel, StatusBadge, btnGhost, input } from "@/components/admin/ui";
 
-type S = { q?: string; status?: string; segment?: string };
+type S = { q?: string | undefined; status?: string | undefined; segment?: string | undefined };
 
 export const Route = createFileRoute("/admin/customers/")({
   validateSearch: (s: Record<string, unknown>): S => ({
-    q: typeof s.q === "string" && s.q ? s.q : undefined,
-    status: typeof s.status === "string" && s.status !== "All" ? s.status : undefined,
-    segment: typeof s.segment === "string" && s.segment !== "All" ? s.segment : undefined,
+    q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined,
+    status: typeof s["status"] === "string" && s["status"] !== "All" ? s["status"] : undefined,
+    segment: typeof s["segment"] === "string" && s["segment"] !== "All" ? s["segment"] : undefined,
   }),
   head: () => ({ meta: [{ title: "Customers — Lumen Bank Admin" }, { name: "description", content: "Search and filter Lumen Bank customers." }] }),
   component: Customers,
@@ -33,7 +33,7 @@ function Customers() {
       <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Saved views">
         {VIEWS.map(([label, v]) => {
           const active = (v.status ?? undefined) === search.status && (v.segment ?? undefined) === search.segment;
-          return <button key={label} role="tab" aria-selected={active} onClick={() => navigate({ search: { q: search.q, ...v } })}
+          return <button key={label} role="tab" aria-selected={active} onClick={() => navigate({ search: { q: search.q, status: v.status, segment: v.segment } })}
             className={`h-10 rounded-full px-4 text-sm font-medium ${active ? "bg-gold text-primary-foreground" : "border border-border hover:border-primary"}`}>{label}</button>;
         })}
       </div>
