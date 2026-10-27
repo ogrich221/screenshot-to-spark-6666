@@ -1,4 +1,5 @@
 # Account opening
+- [ ] Simplify customer page, add sidebar security and back arrows, international wire previews and bank-photo loading; verify.
 - [x] Add secure sign-in and saved customer profiles.
 - [x] Build five-step account opening with validation, masked security and editable review.
 - [x] Add zero-balance success and customer dashboard; connect account-opening buttons.
