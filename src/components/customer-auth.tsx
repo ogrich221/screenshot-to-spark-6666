@@ -19,9 +19,11 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   useEffect(() => {
     let alive = true;
-    void supabase.auth.getUser().then(({ data }) => { if (alive) { setUser(data.user); setLoading(false); } });
+    let eventReceived = false;
+    void supabase.auth.getUser().then(({ data }) => { if (alive && !eventReceived) { setUser(data.user); setLoading(false); } });
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (!['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED', 'INITIAL_SESSION'].includes(event)) return;
+      eventReceived = true;
       setUser(session?.user ?? null); setLoading(false);
       if (event === 'INITIAL_SESSION') return;
       if (event === 'SIGNED_OUT') queryClient.clear();

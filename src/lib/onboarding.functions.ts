@@ -2,9 +2,9 @@ import { createServerFn } from '@tanstack/react-start';
 import { setResponseHeader } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { applicationSchema, detailsSchema } from './onboarding';
+import { applicationSchema } from './onboarding';
 
-const draftSchema = z.object({ details: z.object({ firstName: z.string().max(100), middleName: z.string().max(100), lastName: z.string().max(100), dob: z.string().max(10), citizenship: z.string().max(100), email: z.string().max(255), phone: z.string().max(100), address: z.string().max(100), city: z.string().max(100), region: z.string().max(100), postal: z.string().max(100), country: z.string().max(100), contactMethod: z.enum(['Email', 'Phone']) }), step: z.number().int().min(0).max(5) });
+const draftSchema = z.object({ details: z.object({ firstName: z.string().max(100), middleName: z.string().max(100), lastName: z.string().max(100), dob: z.string().max(10), citizenship: z.string().max(100), email: z.string().max(255), phone: z.string().max(100), address: z.string().max(100), city: z.string().max(100), region: z.string().max(100), postal: z.string().max(100), country: z.string().max(100), contactMethod: z.enum(['Email', 'Phone']) }), step: z.number().int().min(0).max(2) });
 export const readCustomer = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   setResponseHeader('Cache-Control', 'no-store');
   const { data: userData, error: authError } = await context.supabase.auth.getUser();
@@ -25,7 +25,9 @@ export const openCustomerAccount = createServerFn({ method: 'POST' }).middleware
   if (error || !auth.user?.email_confirmed_at || auth.user.email?.toLowerCase() !== data.details.email.toLowerCase()) throw new Error('Confirm the email used to sign in before opening your account.');
   const hash = async (value: string) => {
     const salt = crypto.getRandomValues(new Uint8Array(16));
-    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(value), 'PBKDF2', false, ['deriveBits']);
+    const pepper = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+    if (!pepper) throw new Error('Account security is unavailable. Please try again later.');
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(value + pepper), 'PBKDF2', false, ['deriveBits']);
     const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, key, 256);
     const hex = (a: Uint8Array) => Array.from(a, b => b.toString(16).padStart(2, '0')).join('');
     return `pbkdf2-sha256$100000$${hex(salt)}$${hex(new Uint8Array(bits))}`;
