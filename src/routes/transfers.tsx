@@ -18,8 +18,8 @@ function Page() {
     <Shell>
       <PageHero eyebrow={'Transfers'} title={'Send money, see every cent.'} sub={"Instant local payments and low-cost international transfers—with the exact amount they'll receive shown before you send."} />
       <Features items={[['Instant local transfers', 'Money arrives in seconds, 24 hours a day, every day of the year.'], ['International payments', 'Send to 40+ countries at the real exchange rate, plus a flat 0.35% fee.'], ['Scheduled payments', 'Set up standing orders and future-dated payments in a few taps.'], ['Request money', 'Send a payment link to friends to split bills easily.'], ['Payee confirmation', 'We check the name matches the account before you send.'], ['Live tracking', 'Follow every international transfer until it lands.']]} />
-      <Stats items={[['Seconds', 'for local transfers'], ['40+', 'countries supported'], ['0.35%', 'international fee'], ['$0', 'local transfer fee']]} />
-      <FAQ items={[['How long do international transfers take?', 'Most arrive within one working day. Some arrive in minutes.'], ['Is there a transfer limit?', 'You can send up to $25,000 a day. Contact us if you need to send more.'], ['Can I cancel a transfer?', 'Scheduled transfers can be cancelled any time before they go out.']]} />
+      <Stats items={[['Seconds', 'for local transfers'], ['$500K', 'daily limit (T&Cs apply)'], ['0.35%', 'international fee'], ['$0', 'local transfer fee']]} />
+      <FAQ items={[['How long do international transfers take?', 'Most arrive within one working day. Some arrive in minutes.'], ['Is there a transfer limit?', 'You can send up to $500,000 a day. Terms and conditions apply.'], ['Can I cancel a transfer?', 'Scheduled transfers can be cancelled any time before they go out.']]} />
     </Shell>
   );
 }
