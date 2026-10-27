@@ -1,5 +1,6 @@
 import { Localized } from '@/components/localized';
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { BackLink } from '@/components/back-link';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useCustomerAuth } from '@/components/customer-auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -183,7 +184,8 @@ export function Footer() {
 }
 
 export function Shell({ children }: { children: ReactNode }) {
-  return (<Localized><><Header /><main>{children}</main><CTA /><Footer /></></Localized>);
+  const path = useRouterState({ select: state => state.location.pathname });
+  return (<Localized><><Header /><main>{path !== '/' && <div className="mx-auto max-w-6xl px-5 pt-4"><BackLink /></div>}{children}</main><CTA /><Footer /></></Localized>);
 }
 
 export function FAQ({ items }: { items: [string, string][] }) {

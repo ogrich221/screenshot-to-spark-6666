@@ -8,7 +8,9 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { BankLoading } from '@/components/bank-loading';
+import building from '@/assets/bank-building.jpg';
 
 import { LangProvider } from "../components/site";
 import { CustomerAuthProvider } from '@/components/customer-auth';
@@ -117,10 +119,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [booting, setBooting] = useState(true);
+  useEffect(() => {
+    const image = new Image();
+    let alive = true;
+    const finish = () => { if (alive) setBooting(false); };
+    image.onload = finish;
+    image.onerror = finish;
+    image.src = building;
+    const timeout = window.setTimeout(finish, 5000);
+    return () => { alive = false; window.clearTimeout(timeout); };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      {booting && <BankLoading />}
       <CustomerAuthProvider><LangProvider><Outlet /></LangProvider></CustomerAuthProvider>
     </QueryClientProvider>
   );
