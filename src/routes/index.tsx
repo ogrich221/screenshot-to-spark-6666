@@ -224,7 +224,7 @@ function Phone() {
         <p className="mt-5 text-xs font-semibold">Recent</p>
         <ul className="mt-2 space-y-2 text-sm">
           {[["Corner Café", "-4.20"], ["Salary", "+3,200.00"], ["Metro Transit", "-2.75"]].map(([n, a]) => (
-            <li key={n} className="flex justify-between"><span>{n}</span><span className={a.startsWith("+") ? "font-semibold text-highlight" : ""}>{show ? a : "••••"}</span></li>
+            <li key={n} className="flex justify-between"><span>{n}</span><span className={a!.startsWith("+") ? "font-semibold text-highlight" : ""}>{show ? a : "••••"}</span></li>
           ))}
         </ul>
         <p className="mt-5 text-xs font-semibold">Spending this month</p>
@@ -240,7 +240,7 @@ function Converter() {
   const [amt, setAmt] = useState(100);
   const [from, setFrom] = useState("USD");
   const [to, setTo] = useState("EUR");
-  const result = (amt / RATES[from].rate) * RATES[to].rate;
+  const result = (amt / RATES[from]!.rate) * RATES[to]!.rate;
   const sel = (v: string, set: (s: string) => void, id: string) => (
     <select id={id} value={v} onChange={(e) => set(e.target.value)} className="h-14 w-full rounded-2xl border border-border bg-background px-4 font-medium">
       {Object.entries(RATES).map(([c, r]) => <option key={c} value={c}>{c} — {r.name}</option>)}
@@ -265,7 +265,7 @@ function Converter() {
             <div className="flex h-14 items-center rounded-2xl bg-secondary px-4 text-lg font-semibold">{(result * 0.9965).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
             {sel(to, setTo, "to")}
           </div>
-          <p className="text-xs text-muted-foreground">1 {from} = {(RATES[to].rate / RATES[from].rate).toFixed(4)} {to} · indicative rate</p>
+          <p className="text-xs text-muted-foreground">1 {from} = {(RATES[to]!.rate / RATES[from]!.rate).toFixed(4)} {to} · indicative rate</p>
         </div>
       </div>
     </section>
