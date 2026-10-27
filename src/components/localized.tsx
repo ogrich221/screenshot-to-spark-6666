@@ -11,6 +11,7 @@ function localizeNode(node: ReactNode, lang: Locale): ReactNode {
   const props = element.props;
   if (props['translate'] === 'no' || props['data-no-translate']) return node;
   const next: Record<string, unknown> = {};
+  if (element.type === 'option' && props['value'] === undefined && typeof props['children'] === 'string') next['value'] = props['children'];
   for (const key of textAttributes) if (typeof props[key] === 'string') next[key] = translate(props[key], lang);
   // Values, event handlers, keys and customer-entered information remain untouched.
   if (props['children'] !== undefined) next['children'] = Children.map(props['children'] as ReactNode, child => localizeNode(child, lang));

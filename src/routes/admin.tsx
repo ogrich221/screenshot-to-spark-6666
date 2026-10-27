@@ -8,6 +8,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { alerts } from "@/lib/admin-data";
 import { StatusBadge } from "@/components/admin/ui";
+import { useLocale } from '@/lib/locale';
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -62,6 +63,7 @@ function NavList({ collapsed, onNav }: { collapsed?: boolean; onNav?: () => void
 }
 
 function AdminLayout() {
+  const { lang, setLang } = useLocale();
   const [collapsed, setCollapsed] = useState(false);
   const [mobile, setMobile] = useState(false);
   const [bell, setBell] = useState(false);
@@ -117,6 +119,8 @@ function AdminLayout() {
               className="h-11 w-full rounded-full border border-border bg-secondary pl-11 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </form>
           <div className="ml-auto flex items-center gap-2">
+            <label className="sr-only" htmlFor="admin-language">Language</label>
+            <select id="admin-language" value={lang} onChange={e => { const value = e.target.value; if (value === 'en' || value === 'fr' || value === 'es' || value === 'de' || value === 'pt') setLang(value); }} className="h-9 rounded-md border border-border bg-secondary px-2 text-xs"><option value="en">EN</option><option value="fr">FR</option><option value="es">ES</option><option value="de">DE</option><option value="pt">PT</option></select>
             <span className="hidden items-center gap-1.5 rounded-full bg-success/15 px-3 py-1.5 text-xs font-semibold text-success sm:inline-flex" title="Your session is encrypted and expires after 15 minutes of inactivity">
               <Lock className="h-3.5 w-3.5" /> Secure session
             </span>
