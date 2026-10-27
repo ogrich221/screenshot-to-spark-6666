@@ -71,7 +71,7 @@ function AdminLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <Toaster position="top-center" />
+      <Toaster position="top-center" theme="dark" richColors />
       {/* Desktop sidebar */}
       <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-sidebar p-4 transition-all lg:flex ${collapsed ? "w-20" : "w-64"}`}>
         <div className="mb-8 px-1"><Logo small={collapsed} /></div>
