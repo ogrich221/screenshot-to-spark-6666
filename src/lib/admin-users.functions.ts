@@ -126,3 +126,36 @@ export const setCardStatus = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("customer_cards").update({ status: data.status }).eq("id", data.id);
     return error ? { ok: false as const, error: "Could not update the card." } : { ok: true as const };
   });
+
+export type Txn = { id: string; userId: string; kind: string; amount: number; narration: string; balanceAfter: number; createdAt: string };
+const toTxn = (r: { id: string; user_id: string; kind: string; amount: number; narration: string; balance_after: number; created_at: string }): Txn => ({ id: r.id, userId: r.user_id, kind: r.kind, amount: Number(r.amount), narration: r.narration, balanceAfter: Number(r.balance_after), createdAt: r.created_at });
+
+export const listLedger = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context as unknown as Ctx);
+    const [{ data: tx }, { data: acc }] = await Promise.all([
+      context.supabase.from("account_transactions").select("*").order("created_at", { ascending: false }).limit(200),
+      context.supabase.from("customer_accounts").select("user_id,available_balance"),
+    ]);
+    return { transactions: (tx ?? []).map(toTxn), balances: Object.fromEntries((acc ?? []).map((a) => [a.user_id, Number(a.available_balance)])) as Record<string, number> };
+  });
+
+export const myTransactions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.from("account_transactions").select("*").eq("user_id", context.userId).order("created_at", { ascending: false }).limit(50);
+    return (data ?? []).map(toTxn);
+  });
+
+export const postTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), kind: z.enum(["credit", "debit"]), amount: z.string().regex(/^\d+(\.\d{1,2})?$/), narration: z.string().trim().min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as Ctx);
+    const amount = Number(data.amount);
+    if (!(amount > 0) || amount > 5_000_000) return { ok: false as const, error: "Enter an amount between 0.01 and 5,000,000." };
+    const { data: bal, error } = await context.supabase.rpc("admin_post_transaction", { p_user_id: data.userId, p_kind: data.kind, p_amount: amount, p_narration: data.narration });
+    if (error) return { ok: false as const, error: /no opened account|Insufficient/.test(error.message) ? error.message : "Could not post the transaction." };
+    return { ok: true as const, balance: Number(bal) };
+  });

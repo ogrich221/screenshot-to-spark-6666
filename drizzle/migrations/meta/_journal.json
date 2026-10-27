@@ -43,6 +43,13 @@
       "when": 1793111159375,
       "tag": "0005_customer_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793111437461,
+      "tag": "0006_account_transactions",
+      "breakpoints": true
     }
   ]
 }

@@ -12,7 +12,7 @@
 - Admin workspace lives under /admin (src/routes/admin*.tsx) with its own layout; it uses sample data from src/lib/admin-data.ts until a real backend is added, because no database is connected yet.
 - Public pages share header/footer via Shell in src/components/site.tsx so navigation stays consistent.
 - Customer onboarding uses Cloud Auth and owner-scoped profiles; store only non-secret draft fields so PINs and security answers never enter browser storage.
-- Customer accounts are application records, not live financial accounts; balances remain zero until a regulated banking integration is connected.
+- Customer balances change only through the admin_post_transaction SECURITY DEFINER function (admin-only, row-locked, no negative balances) which writes an account_transactions ledger entry with narration; this keeps every balance change auditable.
 - Customer transfer previews use a pure cent-based calculation and never submit payments, debit balances or issue payment receipts until regulated payment services exist; this prevents false financial confirmations.
 - Hash onboarding secrets in authenticated server functions and keep their table unreadable to customers; account creation is idempotent.
 - Languages use static reviewed catalogues and React-rendered localization boundaries; never mutate rendered DOM text or translate user-entered form values.

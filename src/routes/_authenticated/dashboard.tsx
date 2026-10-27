@@ -1,3 +1,6 @@
+import { useServerFn } from '@tanstack/react-start';
+import { useQuery } from '@tanstack/react-query';
+import { myTransactions } from '@/lib/admin-users.functions';
 import { Localized } from '@/components/localized';
 import { BackLink } from '@/components/back-link';
 import { TransferPreview } from '@/components/transfer-preview';
@@ -114,7 +117,7 @@ function Page() {
 
       <CustomerCards name={name} email={data.email} />
       {data.account && <UtilityBills availableBalance={data.account.available_balance} />}
-      {data.account && <section className="mt-8 border-t border-border py-7"><h2 className="flex items-center gap-2 font-semibold"><Clock className="size-5 text-primary" />Recent activity</h2><p className="mt-4 text-sm text-muted-foreground">Your account is open. No transactions yet.</p></section>}
+      {data.account && <RecentActivity show={show} />}
     </main>
   </div></Localized>;
 }
@@ -124,5 +127,17 @@ function ProfileGroup({ icon: Icon, title, rows, action }: { icon: LucideIcon; t
     <h3 className="flex items-center gap-2 text-sm font-semibold"><Icon className="size-4 text-primary" />{title}</h3>
     <dl className="mt-3 space-y-2 text-sm">{rows.map(([l, v]) => <div key={l} className="flex justify-between gap-4"><dt className="text-muted-foreground">{l}</dt><dd className="break-words text-right font-medium" data-no-translate>{v}</dd></div>)}</dl>
     {action && <div className="mt-3">{action}</div>}
+  </section>;
+}
+
+function RecentActivity({ show }: { show: boolean }) {
+  const tx = useQuery({ queryKey: ['my-transactions'], queryFn: useServerFn(myTransactions) });
+  const fmt = (v: number) => show ? v.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '$••••••';
+  return <section className="mt-8 border-t border-border py-7"><h2 className="flex items-center gap-2 font-semibold"><Clock className="size-5 text-primary" />Recent activity</h2>
+    {!tx.data?.length ? <p className="mt-4 text-sm text-muted-foreground">Your account is open. No transactions yet.</p>
+      : <ul className="mt-4 divide-y divide-border">{tx.data.map(t => <li key={t.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+          <div className="min-w-0"><p className="truncate font-medium" data-no-translate>{t.narration}</p><p className="text-xs text-muted-foreground">{t.kind === 'credit' ? 'Credit' : 'Debit'} · {new Date(t.createdAt).toLocaleString()}</p></div>
+          <div className="shrink-0 text-right"><p className={`font-semibold ${t.kind === 'credit' ? 'text-success' : 'text-destructive'}`}>{t.kind === 'credit' ? '+' : '−'}{fmt(t.amount)}</p><p className="text-xs text-muted-foreground">Balance {fmt(t.balanceAfter)}</p></div>
+        </li>)}</ul>}
   </section>;
 }
