@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero, Shell } from "@/components/site";
+import { FAQ, PageHero, Shell, Stats } from "@/components/site";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -27,7 +27,7 @@ const fees = [
 function Page() {
   return (
     <Shell>
-      <PageHero eyebrow="Pricing" title="Every fee, in plain sight." sub="If something costs money, you'll see it here—and in the app before you tap." />
+      <PageHero eyebrow="Fees & Pricing" title="Fees & pricing, in plain sight." sub="If something costs money, you'll see it here—and in the app before you tap." />
       <section className="mx-auto grid max-w-6xl gap-6 px-5 md:grid-cols-3">
         {plans.map((p) => (
           <div key={p.name} className={`rounded-3xl p-8 ${p.featured ? "bg-gold text-primary-foreground shadow-glow" : "glass"}`}>
@@ -54,6 +54,8 @@ function Page() {
           </tbody>
         </table>
       </section>
+      <Stats items={[["$0", "monthly fee on Essential"], ["0%", "markup on card spending abroad"], ["0.35%", "flat currency conversion fee"], ["30 days", "notice before any price change"]]} />
+      <FAQ items={[["Are there any hidden fees?", "No. Every fee we charge is listed on this page and shown in the app before you confirm a transaction."], ["Can I change plans?", "Yes. Upgrade or downgrade at any time from the app. Changes apply from your next billing date."], ["Will prices change?", "If we ever change a fee, we'll tell you at least 30 days in advance, and you can switch or close your account at no cost."], ["What happens if I cancel?", "There are no exit fees. We'll transfer your remaining balance to any account you choose."]]} />
     </Shell>
   );
 }

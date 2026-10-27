@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero, Shell } from "@/components/site";
+import { FAQ, PageHero, Shell, Stats } from "@/components/site";
 
 export const Route = createFileRoute("/security")({
   head: () => ({
@@ -25,7 +25,7 @@ const items = [
 function Page() {
   return (
     <Shell>
-      <PageHero eyebrow="Security" title="Protected, and you'll always know how." sub="We explain every safeguard in plain words—because trust shouldn't need a dictionary." />
+      <PageHero eyebrow="Security Centre" title="Protected, always—and you'll always know how." sub="We explain every safeguard in plain words—because trust shouldn't need a dictionary." />
       <section className="mx-auto grid max-w-6xl gap-6 px-5 sm:grid-cols-2 lg:grid-cols-3">
         {items.map(([h, p]) => (
           <div key={h} className="glass rounded-3xl p-8">
@@ -42,6 +42,8 @@ function Page() {
           <a href="#" className="mt-6 inline-flex h-12 items-center rounded-full bg-gold px-6 font-semibold text-primary-foreground">Report fraud</a>
         </div>
       </section>
+      <Stats items={[["$250K", "deposit protection"], ["24/7", "fraud monitoring"], ["256-bit", "encryption"], ["< 2 min", "average support response"]]} />
+      <FAQ items={[["What should I do if my card is lost?", "Freeze it instantly in the app. If it doesn't turn up, order a replacement in one tap and we'll cancel the old one."], ["Will Lumen ever call me to ask for my PIN?", "Never. We will never ask for your PIN, passcode or one-time codes by phone, email or message."], ["How do you protect my personal data?", "We encrypt your data, never sell it, and only share it when the law requires us to."], ["What if I'm charged for something I didn't buy?", "Report it in the app. We'll investigate and, in most cases, refund you while we look into it."]]} />
     </Shell>
   );
 }

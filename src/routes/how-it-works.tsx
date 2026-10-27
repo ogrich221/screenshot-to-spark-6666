@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero, Shell } from "@/components/site";
+import { FAQ, PageHero, Shell, Stats } from "@/components/site";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -23,7 +23,7 @@ const steps = [
 function Page() {
   return (
     <Shell>
-      <PageHero eyebrow="How it works" title="From sign-up to spending in one coffee break." sub="Four simple steps. No jargon, no fine print, no waiting on hold." />
+      <PageHero eyebrow="Personal Banking" title="Personal banking, designed around you." sub="Four simple steps. No jargon, no fine print, no waiting on hold." />
       <section className="mx-auto max-w-6xl px-5">
         <ol className="grid gap-6 md:grid-cols-2">
           {steps.map(([h, p], i) => (
@@ -46,6 +46,19 @@ function Page() {
           ))}
         </div>
       </section>
+      <Stats items={[["5 min", "average account opening"], ["0", "branch visits required"], ["24/7", "in-app human support"], ["150+", "countries your card works in"]]} />
+      <section className="mx-auto grid max-w-6xl gap-10 px-5 pt-24 md:grid-cols-2">
+        <div>
+          <h2 className="text-3xl font-bold md:text-4xl">One account. Everything you need.</h2>
+          <p className="mt-4 text-muted-foreground">Your Lumen current account comes with local account details, a contactless debit card, Apple Pay and Google Pay support, direct debits, standing orders and instant transfers—at no monthly cost.</p>
+        </div>
+        <ul className="space-y-4">
+          {["Get paid up to two days early", "Split bills and request money from friends", "Hold and spend in 15 currencies", "Download statements any time, in PDF or CSV"].map((x) => (
+            <li key={x} className="flex gap-3 rounded-2xl bg-secondary p-4"><span aria-hidden className="text-primary">✓</span>{x}</li>
+          ))}
+        </ul>
+      </section>
+      <FAQ items={[["Who can open an account?", "Anyone aged 18 or over with a valid passport or national ID and a residential address in a supported country."], ["Is there a minimum deposit?", "No. You can open your account with a zero balance and add money whenever you're ready."], ["Can I switch my salary to Lumen?", "Yes. Share your new account details with your employer, or use our switching service and we'll move your payments for you."], ["How do I contact support?", "Tap Help in the app to chat with a real person, any time of day. You can also call us on the number printed on your card."]]} />
     </Shell>
   );
 }
