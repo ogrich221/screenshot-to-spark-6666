@@ -154,6 +154,74 @@ function Index() {
   );
 }
 
+// The 12 countries Lumen Bank operates from (approximate capital coordinates)
+const COUNTRIES: { name: string; lat: number; lng: number }[] = [
+  { name: "United States", lat: 38.9, lng: -77 },
+  { name: "United Kingdom", lat: 51.5, lng: -0.1 },
+  { name: "Canada", lat: 45.4, lng: -75.7 },
+  { name: "France", lat: 48.9, lng: 2.4 },
+  { name: "Germany", lat: 52.5, lng: 13.4 },
+  { name: "Spain", lat: 40.4, lng: -3.7 },
+  { name: "Portugal", lat: 38.7, lng: -9.1 },
+  { name: "Nigeria", lat: 9.1, lng: 7.5 },
+  { name: "Kenya", lat: -1.3, lng: 36.8 },
+  { name: "India", lat: 28.6, lng: 77.2 },
+  { name: "Brazil", lat: -15.8, lng: -47.9 },
+  { name: "Australia", lat: -35.3, lng: 149.1 },
+];
+
+function Globe() {
+  const R = 88; // globe radius in px (globe is 176px)
+  const dot = (lat: number, lng: number) => {
+    const la = (lat * Math.PI) / 180;
+    const lo = (lng * Math.PI) / 180;
+    return {
+      x: R * Math.cos(la) * Math.sin(lo),
+      y: -R * Math.sin(la),
+      z: R * Math.cos(la) * Math.cos(lo),
+    };
+  };
+  return (
+    <Localized><div className="mt-10 flex items-center gap-6">
+      <div className="globe-scene shrink-0" role="img" aria-label="Spinning globe highlighting the 12 countries Lumen Bank operates from">
+        <div className="globe-tilt">
+          <div className="globe">
+            {[0, 30, 60, 90, 120, 150].map((a) => (
+              <div key={a} className="globe-ring" style={{ transform: `rotateY(${a}deg)` }} />
+            ))}
+            <div className="globe-ring" style={{ transform: "rotateX(90deg)" }} />
+            {COUNTRIES.map((c, i) => {
+              const p = dot(c.lat, c.lng);
+              return (
+                <div
+                  key={c.name}
+                  className="globe-dot"
+                  title={c.name}
+                  style={{
+                    left: R - 4.5,
+                    top: R - 4.5,
+                    transform: `translate3d(${p.x}px, ${p.y}px, ${p.z}px)`,
+                    animationDelay: `${i * 0.22}s`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div>
+        <p className="text-sm font-semibold uppercase tracking-widest text-primary">Banking across 12 countries</p>
+        <p className="mt-2 max-w-xs text-sm text-muted-foreground">We operate from 12 countries around the world, so your money moves with you.</p>
+        <ul className="mt-3 flex max-w-sm flex-wrap gap-1.5">
+          {COUNTRIES.map((c) => (
+            <li key={c.name} className="rounded-full border border-border bg-secondary/60 px-2.5 py-0.5 text-xs text-muted-foreground">{c.name}</li>
+          ))}
+        </ul>
+      </div>
+    </div></Localized>
+  );
+}
+
 function Phone() {
   const [show, setShow] = useState(false);
   const [frozen, setFrozen] = useState(false);
