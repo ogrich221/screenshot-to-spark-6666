@@ -1,3 +1,4 @@
+import { PasswordInput } from '@/components/ui/password-input';
 import { Localized } from '@/components/localized';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
@@ -66,7 +67,7 @@ export function CustomerSignIn() {
     <div><h2 className="text-2xl font-semibold">{mode === 'signup' ? 'A secure place to start.' : mode === 'forgot' ? 'Reset your password.' : 'Welcome back.'}</h2><p className="mt-2 text-sm text-muted-foreground">{mode === 'signup' ? 'Create your sign-in to keep your application private and return whenever you need.' : mode === 'forgot' ? 'We’ll email you a secure reset link.' : 'Sign in to finish your application or view your account.'}</p></div>
     <form onSubmit={submit} className="space-y-4">
       <label className="block text-sm font-medium">Email address<Input className="mt-2 h-12" type="email" autoComplete="email" value={email} maxLength={255} onChange={e => setEmail(e.target.value)} required /></label>
-      {mode !== 'forgot' && <label className="block text-sm font-medium">Password<Input className="mt-2 h-12" type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} value={password} maxLength={128} onChange={e => setPassword(e.target.value)} required />{mode === 'signup' && <span className="mt-2 block text-xs text-muted-foreground">At least 12 characters. Your transfer PIN is separate.</span>}</label>}
+      {mode !== 'forgot' && <label className="block text-sm font-medium">Password<PasswordInput className="mt-2 h-12" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} value={password} maxLength={128} onChange={e => setPassword(e.target.value)} required />{mode === 'signup' && <span className="mt-2 block text-xs text-muted-foreground">At least 12 characters. Your transfer PIN is separate.</span>}</label>}
       {message && <p role="status" className="text-sm text-success">{message}</p>}{error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <Button disabled={busy} className="h-12 w-full" type="submit">{busy ? <LoaderCircle className="animate-spin" /> : <Mail />}{mode === 'signup' ? 'Create secure sign-in' : mode === 'forgot' ? 'Send reset link' : 'Sign in'}<ArrowRight /></Button>
     </form>
