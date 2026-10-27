@@ -57,6 +57,13 @@
       "when": 1793111684951,
       "tag": "0007_allow_balances",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793111950431,
+      "tag": "0008_customer_pay_bill",
+      "breakpoints": true
     }
   ]
 }

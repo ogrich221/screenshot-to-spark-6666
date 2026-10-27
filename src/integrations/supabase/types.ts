@@ -247,6 +247,15 @@ export type Database = {
         }
         Returns: string
       }
+      customer_pay_bill: {
+        Args: {
+          p_amount: number
+          p_provider: string
+          p_reference: string
+          p_type: string
+        }
+        Returns: Json
+      }
       finalize_customer_account: {
         Args: {
           p_answer_hashes: string[]
