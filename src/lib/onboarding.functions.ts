@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { applicationSchema } from './onboarding';
 
-const draftSchema = z.object({ details: z.object({ firstName: z.string().max(100), middleName: z.string().max(100), lastName: z.string().max(100), dob: z.string().max(10), citizenship: z.string().max(100), email: z.string().max(255), phone: z.string().max(100), address: z.string().max(100), city: z.string().max(100), region: z.string().max(100), postal: z.string().max(100), country: z.string().max(100), contactMethod: z.enum(['Email', 'Phone']) }), step: z.number().int().min(0).max(2) });
+const draftSchema = z.object({ details: z.object({ firstName: z.string().max(100), middleName: z.string().max(100), lastName: z.string().max(100), dob: z.string().max(10), citizenship: z.string().max(100), email: z.string().max(255), phone: z.string().max(100), address: z.string().max(100), city: z.string().max(100), region: z.string().max(100), postal: z.string().max(100), country: z.string().max(100).optional(), contactMethod: z.enum(['Email', 'Phone']).optional() }), step: z.number().int().min(0).max(2) });
 export const readCustomer = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   setResponseHeader('Cache-Control', 'no-store');
   const { data: userData, error: authError } = await context.supabase.auth.getUser();
