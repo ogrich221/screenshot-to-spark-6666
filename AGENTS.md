@@ -13,7 +13,7 @@
 - Public pages share header/footer via Shell in src/components/site.tsx so navigation stays consistent.
 - Customer onboarding uses Cloud Auth and owner-scoped profiles; store only non-secret draft fields so PINs and security answers never enter browser storage.
 - Customer balances change only through the admin_post_transaction SECURITY DEFINER function (admin-only, row-locked, no negative balances) which writes an account_transactions ledger entry with narration; this keeps every balance change auditable.
-- Customer transfer previews use a pure cent-based calculation and never submit payments, debit balances or issue payment receipts until regulated payment services exist; this prevents false financial confirmations.
+- Customer transfers and bill payments create pending debits via customer_request_debit; only admin_review_transaction (admin, row-locked) completes or declines them, so balances never move without approval.
 - Hash onboarding secrets in authenticated server functions and keep their table unreadable to customers; account creation is idempotent.
 - Languages use static reviewed catalogues and React-rendered localization boundaries; never mutate rendered DOM text or translate user-entered form values.
 
