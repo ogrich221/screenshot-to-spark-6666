@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import { LocaleProvider, useLocale } from '@/lib/locale';
 
 export const LANGS = {
   en: { label: "EN", full: "English", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
@@ -15,14 +16,12 @@ export const LANGS = {
 } as const;
 export type Lang = keyof typeof LANGS;
 
-const LangCtx = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({ lang: "en", setLang: () => {} });
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("en");
-  return <LangCtx.Provider value={{ lang, setLang }}>{children}</LangCtx.Provider>;
+  return <LocaleProvider>{children}</LocaleProvider>;
 }
 export const useT = () => {
-  const { lang, setLang } = useContext(LangCtx);
-  return { t: LANGS[lang], lang, setLang };
+  const { lang, setLang } = useLocale();
+  return { t: LANGS.en, lang, setLang };
 };
 
 const PAGES = ["/how-it-works", "/pricing", "/savings", "/security"] as const;

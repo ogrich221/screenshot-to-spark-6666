@@ -14,3 +14,4 @@
 - Customer onboarding uses Cloud Auth and owner-scoped profiles; store only non-secret draft fields so PINs and security answers never enter browser storage.
 - Customer accounts are application records, not live financial accounts; balances remain zero until a regulated banking integration is connected.
 - Hash onboarding secrets in authenticated server functions and keep their table unreadable to customers; account creation is idempotent.
+- Languages use static reviewed catalogues and React-rendered localization boundaries; never mutate rendered DOM text or translate user-entered form values.
