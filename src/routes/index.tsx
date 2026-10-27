@@ -99,33 +99,6 @@ function Index() {
 
       <Converter />
 
-      {/* Savings */}
-      <section className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-5 py-28 md:grid-cols-2">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-widest text-accent">Savings goals</p>
-          <h2 className="mt-3 text-4xl font-bold md:text-5xl">Watch your plans come into focus.</h2>
-          <p className="mt-5 max-w-md text-lg text-muted-foreground">Name a goal, pick a date, and we'll show you exactly how much to set aside each week. No jargon, just progress.</p>
-          <Link to="/savings" className="mt-8 inline-flex h-12 items-center rounded-full border border-primary px-6 font-semibold text-primary hover:bg-primary hover:text-primary-foreground">Explore savings →</Link>
-        </div>
-        <div className="space-y-4">
-          {[["Trip to Lisbon", 1840, 2500, "by June"], ["Rainy day fund", 3200, 5000, "steady"], ["New laptop", 620, 1400, "by March"]].map(([n, a, g, w]) => {
-            const pct = Math.round(((a as number) / (g as number)) * 100);
-            return (
-              <div key={n as string} className="glass rounded-3xl p-6">
-                <div className="flex items-baseline justify-between">
-                  <h3 className="text-lg font-semibold">{n}</h3>
-                  <span className="text-sm text-muted-foreground">{w}</span>
-                </div>
-                <div className="mt-4 h-3 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
-                </div>
-                <p className="mt-3 text-sm text-muted-foreground"><span className="font-semibold text-foreground">${(a as number).toLocaleString()}</span> saved of ${(g as number).toLocaleString()} · {pct}% there</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
       {/* Testimonials */}
       <section className="relative z-10 bg-secondary/40 py-28">
         <div className="mx-auto max-w-6xl px-5">
