@@ -31,13 +31,6 @@ export const Route = createFileRoute("/admin")({
 export const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard },
   { to: "/admin/users", label: "Users", icon: UserCog },
-  { to: "/admin/customers", label: "Customers", icon: Users },
-  { to: "/admin/accounts", label: "Accounts", icon: Wallet },
-  { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { to: "/admin/cards", label: "Cards", icon: CreditCard },
-  { to: "/admin/cases", label: "Support cases", icon: LifeBuoy },
-  { to: "/admin/compliance", label: "Compliance", icon: ShieldAlert },
-  { to: "/admin/reports", label: "Reports", icon: FileBarChart },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ] as const;
 
