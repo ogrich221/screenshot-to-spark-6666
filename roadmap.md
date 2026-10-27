@@ -1,4 +1,5 @@
 # Account opening
+- [ ] Refresh profile palette, add physical/virtual card designs and utility bill previews, add wire bank address, remove Add money and the disconnected-services banner.
 - [x] Simplify customer page, add sidebar security and back arrows, international wire previews and bank-photo loading; calculations and isolated wire flow verified.
 - [x] Add secure sign-in and saved customer profiles.
 - [x] Build five-step account opening with validation, masked security and editable review.
