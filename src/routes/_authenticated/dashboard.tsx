@@ -37,7 +37,7 @@ function Page() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
         <Link to="/" className="font-display text-sm font-bold tracking-widest text-gold" translate="no">LUMEN BANK</Link>
         <div className="flex items-center gap-2">
-          <select aria-label="Language" value={lang} onChange={e => setLang(e.target.value as typeof lang)} className="h-9 rounded-md border border-border bg-background px-2 text-xs">{['EN', 'FR', 'ES', 'DE', 'PT'].map(l => <option key={l} value={l}>{l}</option>)}</select>
+          <select aria-label="Language" value={lang} onChange={e => setLang(e.target.value as typeof lang)} className="h-9 rounded-md border border-border bg-background px-2 text-xs">{['en', 'fr', 'es', 'de', 'pt'].map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}</select>
           <Button asChild variant="ghost" size="sm"><Link to="/"><Home />Home</Link></Button>
           <Button variant="outline" size="sm" onClick={signOut}><LogOut />Sign out</Button>
         </div>
