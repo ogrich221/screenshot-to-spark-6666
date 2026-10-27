@@ -62,6 +62,7 @@ function Index() {
             <Button asChild className="h-14 rounded-full bg-gold px-8 font-semibold shadow-glow transition hover:-translate-y-0.5"><Link to="/open-account">{t.cta}</Link></Button>
             <Link to="/how-it-works" className="glass inline-flex h-14 items-center justify-center rounded-full px-8 font-semibold">{t.cta2} →</Link>
           </div>
+          <p className="mt-4 text-sm text-muted-foreground">Already a customer? <Link to="/auth" className="font-semibold text-primary hover:underline">Sign in</Link></p>
           <dl className="mt-12 grid max-w-md grid-cols-3 gap-6">
             {[["2M+", "customers"], ["$0", "monthly fee"], ["4.9★", "app rating"]].map(([v, l]) => (
               <div key={l}><dt className="font-display text-2xl font-bold text-primary">{v}</dt><dd className="text-sm text-muted-foreground">{l}</dd></div>

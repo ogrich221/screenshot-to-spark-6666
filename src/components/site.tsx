@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { LocaleProvider, useLocale } from '@/lib/locale';
 
 export const LANGS = {
-  en: { label: "EN", full: "English", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
-  fr: { label: "FR", full: "Français", h: "La banque, en toute clarté.", sub: "Des comptes simples, des frais transparents et un contrôle total sur votre argent—où que la vie vous mène.", cta: "Ouvrir un compte", cta2: "Découvrir le fonctionnement", nav: ["Banque au quotidien", "Frais & tarifs", "Épargne & objectifs", "Centre de sécurité"], dash: "Tableau de bord" },
-  es: { label: "ES", full: "Español", h: "Banca, con claridad.", sub: "Cuentas simples, comisiones transparentes y control total de tu dinero—dondequiera que te lleve la vida.", cta: "Abrir una cuenta", cta2: "Cómo funciona", nav: ["Banca personal", "Tarifas", "Ahorro y metas", "Centro de seguridad"], dash: "Panel" },
-  de: { label: "DE", full: "Deutsch", h: "Banking, ganz klar.", sub: "Einfache Konten, transparente Gebühren und volle Kontrolle über Ihr Geld—wohin das Leben Sie auch führt.", cta: "Konto eröffnen", cta2: "So funktioniert's", nav: ["Privatkonto", "Gebühren & Preise", "Sparen & Ziele", "Sicherheitscenter"], dash: "Übersicht" },
-  pt: { label: "PT", full: "Português", h: "Banco, com clareza.", sub: "Contas simples, tarifas transparentes e controle total do seu dinheiro—onde quer que a vida o leve.", cta: "Abrir conta", cta2: "Veja como funciona", nav: ["Conta pessoal", "Tarifas", "Poupança e metas", "Central de segurança"], dash: "Painel" },
+  en: { label: "EN", full: "English", signin: "Sign in", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
+  fr: { label: "FR", full: "Français", signin: "Se connecter", h: "La banque, en toute clarté.", sub: "Des comptes simples, des frais transparents et un contrôle total sur votre argent—où que la vie vous mène.", cta: "Ouvrir un compte", cta2: "Découvrir le fonctionnement", nav: ["Banque au quotidien", "Frais & tarifs", "Épargne & objectifs", "Centre de sécurité"], dash: "Tableau de bord" },
+  es: { label: "ES", full: "Español", signin: "Iniciar sesión", h: "Banca, con claridad.", sub: "Cuentas simples, comisiones transparentes y control total de tu dinero—dondequiera que te lleve la vida.", cta: "Abrir una cuenta", cta2: "Cómo funciona", nav: ["Banca personal", "Tarifas", "Ahorro y metas", "Centro de seguridad"], dash: "Panel" },
+  de: { label: "DE", full: "Deutsch", signin: "Anmelden", h: "Banking, ganz klar.", sub: "Einfache Konten, transparente Gebühren und volle Kontrolle über Ihr Geld—wohin das Leben Sie auch führt.", cta: "Konto eröffnen", cta2: "So funktioniert's", nav: ["Privatkonto", "Gebühren & Preise", "Sparen & Ziele", "Sicherheitscenter"], dash: "Übersicht" },
+  pt: { label: "PT", full: "Português", signin: "Entrar", h: "Banco, com clareza.", sub: "Contas simples, tarifas transparentes e controle total do seu dinheiro—onde quer que a vida o leve.", cta: "Abrir conta", cta2: "Veja como funciona", nav: ["Conta pessoal", "Tarifas", "Poupança e metas", "Central de segurança"], dash: "Painel" },
 } as const;
 export type Lang = keyof typeof LANGS;
 
@@ -93,6 +93,7 @@ function DashboardMenu() {
 
 export function Header() {
   const { t, lang, setLang } = useT();
+  const { user } = useCustomerAuth();
   return (
     <Localized><header className="sticky top-0 z-40 border-b border-border bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
@@ -110,7 +111,14 @@ export function Header() {
         <nav className="hidden gap-6 text-sm font-medium text-muted-foreground xl:flex">
           {PAGES.map((p, i) => <Link key={p} to={p} className="hover:text-foreground" activeProps={{ className: "text-primary" }}>{t.nav[i]}</Link>)}
         </nav>
-        <DashboardMenu />
+        <div className="flex items-center gap-2">
+          {!user && (
+            <Button asChild variant="outline" className="h-10 rounded-full border-primary/40 px-5 text-sm font-semibold hover:bg-secondary">
+              <Link to="/auth">{t.signin}</Link>
+            </Button>
+          )}
+          <DashboardMenu />
+        </div>
       </div>
     </header></Localized>
   );
