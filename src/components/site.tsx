@@ -41,7 +41,7 @@ function DashboardMenu() {
         {t.dash}
       </button>
       {open && (
-        <div className="glass absolute right-0 top-14 z-50 w-72 rounded-3xl p-4 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 top-14 border border-border bg-popover shadow-soft z-50 w-72 rounded-3xl p-4 animate-in fade-in slide-in-from-top-2">
           <div className="rounded-2xl bg-secondary p-4">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>Total balance</span>
