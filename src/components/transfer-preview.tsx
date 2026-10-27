@@ -1,3 +1,6 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
+import { requestDebit } from '@/lib/admin-users.functions';
 import { useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowUpRight, CheckCircle2, Download, Globe, Landmark, Info, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +26,21 @@ export function TransferPreview({ availableBalance, international = false, domes
   const [account, setAccount] = useState('');
   const [swift, setSwift] = useState('');
   const preview = transferPreview(availableBalance, amount);
+  const qc = useQueryClient();
+  const request = useServerFn(requestDebit);
+  const [requestId, setRequestId] = useState('');
+  const [error, setError] = useState('');
+  const submit = useMutation({
+    mutationFn: () => {
+      const details: Record<string, string> = { recipient: recipient.trim(), ...(reference.trim() ? { reference: reference.trim() } : {}) };
+      if (domestic) Object.assign(details, { bank: bank.trim(), routing: swift, account: account.trim() });
+      if (international) Object.assign(details, { bank: bank.trim(), bankAddress: bankAddress.trim(), country: country.trim(), account: account.trim(), swift: swift.trim() });
+      const label = international ? 'International wire' : 'Domestic transfer';
+      return request({ data: { category: international ? 'international' : 'domestic', amount, narration: `${label} to ${recipient.trim()}${reference.trim() ? ` — ${reference.trim()}` : ''}`.slice(0, 200), details } });
+    },
+    onSuccess: r => { if (!r.ok) { setError(r.error); return; } setError(''); setRequestId(r.id); setStep('summary'); qc.invalidateQueries({ queryKey: ['my-transactions'] }); },
+    onError: () => setError('Your request could not be submitted. Please try again.'),
+  });
 
   function review(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,7 +50,7 @@ export function TransferPreview({ availableBalance, international = false, domes
   function download() {
     const t = (text: string) => translate(text, lang);
     const text = [
-      'LUMEN BANK', t('Transfer preview summary'), t('Preview only. No money has been sent. This is not a payment receipt.'),
+      'LUMEN BANK', t('Transfer preview summary'), t('Transfer submitted — awaiting approval.'), `${t('Request number')}: ${requestId.slice(0, 8).toUpperCase()}`,
       `${t('Recipient')}: ${recipient.trim()}`, `${t('Transfer amount')}: ${money(preview.amount)}`,
       `${t('Available balance')}: ${money(availableBalance)}`,
       `${t(preview.sufficient ? 'Estimated balance after transfer' : 'Balance unchanged')}: ${money(preview.remainingBalance)}`,
@@ -50,12 +68,12 @@ export function TransferPreview({ availableBalance, international = false, domes
   }
 
   return <Localized><>
-    <Button variant={international ? 'outline' : 'default'} className="h-12 whitespace-normal" onClick={() => { setStep('details'); setRecipient(''); setAmount(''); setReference(''); setBank(''); setBankAddress(''); setCountry(''); setAccount(''); setSwift(''); setOpen(true); }}>{international ? <><Globe />International wire transfer</> : domestic ? <><Landmark />Domestic transfer</> : <>Send money<ArrowUpRight /></>}</Button>
+    <Button variant={international ? 'outline' : 'default'} className="h-12 whitespace-normal" onClick={() => { setStep('details'); setRecipient(''); setAmount(''); setReference(''); setBank(''); setBankAddress(''); setCountry(''); setAccount(''); setSwift(''); setRequestId(''); setError(''); setOpen(true); }}>{international ? <><Globe />International wire transfer</> : domestic ? <><Landmark />Domestic transfer</> : <>Send money<ArrowUpRight /></>}</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-lg sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" title="Back" onClick={() => step === 'details' ? setOpen(false) : setStep(step === 'summary' ? 'review' : 'details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? international ? 'International wire transfer' : domestic ? 'Domestic transfer' : 'Plan a transfer' : step === 'review' ? 'Review transfer' : 'Transfer preview summary'}</DialogTitle></div>
-          <DialogDescription>Preview only. No money is sent.</DialogDescription>
+          <DialogDescription>Transfers are completed after approval.</DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-2 border-b border-border pb-4 text-xs text-muted-foreground" aria-label="Transfer progress">
           <span className={step === 'details' ? 'text-primary' : ''}>1 · Details</span><ArrowUpRight className="size-3" />
@@ -88,7 +106,7 @@ export function TransferPreview({ availableBalance, international = false, domes
           <BalanceImpact availableBalance={availableBalance} amount={amount} />
           <div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="outline" className="h-12" onClick={() => setOpen(false)}>Cancel</Button><Button type="submit" className="h-12" disabled={!recipient.trim() || !preview.valid || !preview.withinLimit}>Review transfer<ArrowUpRight /></Button></div>
         </form> : <>
-          {step === 'summary' && <div role="status" className="flex gap-3 rounded-md border border-success/30 bg-success/10 p-4 text-success"><CheckCircle2 className="size-5 shrink-0" /><div><p className="font-semibold">Your preview is ready.</p><p className="mt-1 text-sm">No money has been sent. Your account balance is unchanged.</p></div></div>}
+          {step === 'summary' && <div role="status" className="flex gap-3 rounded-md border border-success/30 bg-success/10 p-4 text-success"><CheckCircle2 className="size-5 shrink-0" /><div><p className="font-semibold">Transfer submitted</p><p className="mt-1 text-sm">It is awaiting approval. Your balance changes once it is approved.</p></div></div>}
           <dl className="space-y-4 border-b border-border py-3 text-sm">
             <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Recipient</dt><dd className="max-w-[65%] break-words text-right" data-no-translate>{recipient.trim()}</dd></div>
             <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Transfer amount</dt><dd>{money(preview.amount)}</dd></div>
@@ -98,10 +116,13 @@ export function TransferPreview({ availableBalance, international = false, domes
             <div><dt className="text-muted-foreground">Fees and delivery time</dt><dd className="mt-1">Not quoted in this preview.</dd></div>
           </dl>
           <BalanceImpact availableBalance={availableBalance} amount={amount} />
-          <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground"><Info className="size-4 shrink-0" />Preview only. No money has been sent. This is not a payment receipt.</p>
+          {requestId && <p className="text-xs text-muted-foreground">Request number <span className="font-mono" data-no-translate>{requestId.slice(0, 8).toUpperCase()}</span></p>}
+          {step === 'review' && !preview.sufficient && <p className="text-sm text-warning">Insufficient funds.</p>}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+          <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground"><Info className="size-4 shrink-0" />Every transfer is reviewed by LUMEN BANK before it is completed.</p>
           <div className="flex flex-wrap justify-end gap-3">
             <Button variant="outline" className="h-12" onClick={() => step === 'review' ? setStep('details') : setOpen(false)}>{step === 'review' ? <><ArrowLeft />Edit details</> : 'Done'}</Button>
-            {step === 'review' ? <Button className="h-12" onClick={() => setStep('summary')}>View preview summary<ArrowUpRight /></Button> : <Button className="h-12" onClick={download}><Download />Download summary</Button>}
+            {step === 'review' ? <Button className="h-12" disabled={!preview.sufficient || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? 'Submitting…' : 'Submit transfer'}<ArrowUpRight /></Button> : <Button className="h-12" onClick={download}><Download />Download summary</Button>}
           </div>
         </>}
       </DialogContent>
