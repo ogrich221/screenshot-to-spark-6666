@@ -3,7 +3,8 @@ import es from './locales/es.json';
 import de from './locales/de.json';
 import pt from './locales/pt.json';
 import type { Locale } from './locale';
-export const catalogues: Record<Exclude<Locale, 'en'>, Record<string, string>> = { fr, es, de, pt };
+import { accountLabels } from './account-labels';
+export const catalogues: Record<Exclude<Locale, 'en'>, Record<string, string>> = { fr: { ...fr, ...accountLabels.fr }, es: { ...es, ...accountLabels.es }, de: { ...de, ...accountLabels.de }, pt: { ...pt, ...accountLabels.pt } };
 export function translate(text: string, lang: Locale): string {
   if (lang === 'en' || !text.trim()) return text;
   const dictionary = catalogues[lang];
