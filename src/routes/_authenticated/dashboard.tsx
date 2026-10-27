@@ -35,17 +35,36 @@ function Page() {
   return <Localized><>
     <header className="sticky top-0 z-40 border-b border-border bg-sidebar/90 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
-        <Link to="/" className="font-display text-sm font-bold tracking-widest text-gold" translate="no">LUMEN BANK</Link>
+        <div className="flex min-w-0 items-center gap-3">
+          <button onClick={() => setMenu(true)} aria-label="Open profile menu" className="flex items-center gap-2 rounded-full border border-border p-1 pr-3 transition hover:border-primary">
+            <AvatarImage url={avatar.url} initials={initials} className="size-8 text-xs" />
+            <Menu className="size-4 text-primary" />
+          </button>
+          <Link to="/" className="truncate font-display text-sm font-bold tracking-widest text-gold" translate="no">LUMEN BANK</Link>
+        </div>
         <div className="flex items-center gap-2">
           <select aria-label="Language" value={lang} onChange={e => setLang(e.target.value as typeof lang)} className="h-9 rounded-md border border-border bg-background px-2 text-xs">{['en', 'fr', 'es', 'de', 'pt'].map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}</select>
-          <Button asChild variant="ghost" size="sm"><Link to="/"><Home />Home</Link></Button>
-          <Button variant="outline" size="sm" onClick={signOut}><LogOut />Sign out</Button>
+          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex"><Link to="/"><Home />Home</Link></Button>
+          <Button variant="outline" size="sm" onClick={signOut} aria-label="Sign out"><LogOut /><span className="hidden sm:inline">Sign out</span></Button>
         </div>
       </div>
     </header>
+    <Sheet open={menu} onOpenChange={setMenu}>
+      <SheetContent side="left" className="w-[88vw] overflow-y-auto sm:max-w-md">
+        <SheetHeader><SheetTitle>My profile</SheetTitle></SheetHeader>
+        <div className="mt-6 space-y-6 px-1 pb-8">
+          <AvatarEditor avatar={avatar} initials={initials} />
+          <ProfileGroup icon={User} title="Personal details" rows={[['Full name', name], ['Date of birth', str(d, 'dob') || 'Not added'], ['Citizenship', str(d, 'citizenship') || 'Not added']]} />
+          <ProfileGroup icon={Mail} title="Contact details" rows={[['Email', data.email], ['Phone', str(d, 'phone') || 'Not added'], ['Address', address || 'Not added']]} />
+          <ProfileGroup icon={Receipt} title="Tax" rows={[['Tax residency', str(d, 'citizenship') || 'Not added'], ['Tax documents', 'None yet'], ['Annual statement', 'Available after your first full tax year']]} />
+          <ProfileGroup icon={Landmark} title="Loans" rows={[['Active loans', 'None'], ['Rates', 'From 5.5% APR']]} action={<Link to="/loans" onClick={() => setMenu(false)} className="text-sm font-semibold text-primary hover:underline">Explore loans →</Link>} />
+          <ProfileGroup icon={HandCoins} title="Grants" rows={[['Applications', 'None'], ['Eligible programmes', 'None available yet']]} action={<Link to="/support" onClick={() => setMenu(false)} className="text-sm font-semibold text-primary hover:underline">Ask about grants →</Link>} />
+        </div>
+      </SheetContent>
+    </Sheet>
     <main className="mx-auto max-w-6xl px-5 py-10">
       <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center">
-        <div className="grid size-16 shrink-0 place-items-center rounded-full bg-gold font-display text-xl font-bold text-primary-foreground">{initials}</div>
+        <AvatarImage url={avatar.url} initials={initials} className="size-16 text-xl" />
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{greet},</p>
           <h1 className="truncate text-2xl font-semibold sm:text-3xl" data-no-translate>{name}</h1>
