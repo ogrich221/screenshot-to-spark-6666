@@ -8,6 +8,8 @@ export const Route = createFileRoute("/transfers")({
       { name: "description", content: 'Send money at home instantly and abroad at the real exchange rate, with the fee shown up front.' },
       { property: "og:title", content: 'Transfers — Lumen Bank' },
       { property: "og:description", content: 'Send money at home instantly and abroad at the real exchange rate, with the fee shown up front.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

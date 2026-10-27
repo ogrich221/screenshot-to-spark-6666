@@ -8,6 +8,8 @@ export const Route = createFileRoute("/support")({
       { name: "description", content: 'Talk to a real person 24/7 by chat or phone, or find answers in our help centre.' },
       { property: "og:title", content: 'Help & Support — Lumen Bank' },
       { property: "og:description", content: 'Talk to a real person 24/7 by chat or phone, or find answers in our help centre.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

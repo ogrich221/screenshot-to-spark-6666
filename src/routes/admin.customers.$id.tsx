@@ -11,7 +11,7 @@ export const Route = createFileRoute("/admin/customers/$id")({
     if (!c) throw notFound();
     return c;
   },
-  head: ({ loaderData }) => ({ meta: [{ title: `${loaderData?.name ?? "Customer"} — Lumen Bank Admin` }, { name: "robots", content: "noindex" }] }),
+  head: ({ loaderData }) => ({ meta: [{ title: `${loaderData?.name ?? "Customer"} — Lumen Bank Admin` }, { name: "description", content: "Customer account profile and activity in Lumen Bank Admin." }, { property: "og:title", content: `${loaderData?.name ?? "Customer"} — Lumen Bank Admin` }, { property: "og:description", content: "Customer account profile and activity in Lumen Bank Admin." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   notFoundComponent: () => <Empty title="Customer not found" text="This customer may have been removed." action={<Link to="/admin/customers" className={btnGhost}>Back to customers</Link>} />,
   component: Profile,
 });

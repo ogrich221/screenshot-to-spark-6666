@@ -5,7 +5,7 @@ import { DataPage, CustomerLink } from "@/components/admin/DataPage";
 import { PageHeader, Panel, StatusBadge, btnGhost, btnPrimary } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/admin/cases")({
-  head: () => ({ meta: [{ title: "Support cases — Lumen Bank Admin" }, { name: "description", content: "Customer support queue." }] }),
+  head: () => ({ meta: [{ title: "Support cases — Lumen Bank Admin" }, { name: "description", content: "Customer support queue." }, { property: "og:title", content: "Support cases — Lumen Bank Admin" }, { property: "og:description", content: "Customer support queue." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 

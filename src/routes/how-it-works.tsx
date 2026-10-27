@@ -8,6 +8,8 @@ export const Route = createFileRoute("/how-it-works")({
       { name: "description", content: "Open a Lumen account in minutes and see every payment, fee and balance in real time." },
       { property: "og:title", content: "How Lumen Bank works" },
       { property: "og:description", content: "Open in minutes. See everything. Stay in control." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

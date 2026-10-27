@@ -9,6 +9,8 @@ export const Route = createFileRoute("/savings")({
       { name: "description", content: "Set savings goals, earn up to 4.1% interest and see exactly how much to put aside each week." },
       { property: "og:title", content: "Save with Lumen Bank" },
       { property: "og:description", content: "Friendly savings goals with a clear plan to reach them." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

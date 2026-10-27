@@ -5,7 +5,7 @@ import { DataPage, CustomerLink } from "@/components/admin/DataPage";
 import { PageHeader, Panel, StatusBadge, btnGhost, btnPrimary } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/admin/compliance")({
-  head: () => ({ meta: [{ title: "Compliance — Lumen Bank Admin" }, { name: "description", content: "Compliance alerts and reviews." }] }),
+  head: () => ({ meta: [{ title: "Compliance — Lumen Bank Admin" }, { name: "description", content: "Compliance alerts and reviews." }, { property: "og:title", content: "Compliance — Lumen Bank Admin" }, { property: "og:description", content: "Compliance alerts and reviews." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 

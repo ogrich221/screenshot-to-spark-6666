@@ -15,6 +15,8 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "Lumen Bank operations workspace for customers, accounts, transactions and compliance." },
       { property: "og:title", content: "Lumen Bank Admin" },
       { property: "og:description", content: "A clear, secure operations workspace for Lumen Bank teams." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),

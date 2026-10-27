@@ -5,7 +5,7 @@ import { activity, alerts } from "@/lib/admin-data";
 import { PageHeader, Panel, StatusBadge, btnGhost, btnPrimary } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/admin/")({
-  head: () => ({ meta: [{ title: "Overview — Lumen Bank Admin" }, { name: "description", content: "Daily summary of customers, accounts, reviews and alerts." }] }),
+  head: () => ({ meta: [{ title: "Overview — Lumen Bank Admin" }, { name: "description", content: "Daily summary of customers, accounts, reviews and alerts." }, { property: "og:title", content: "Overview — Lumen Bank Admin" }, { property: "og:description", content: "Daily summary of customers, accounts, reviews and alerts." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Overview,
 });
 

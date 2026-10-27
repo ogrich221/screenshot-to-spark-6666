@@ -9,6 +9,8 @@ export const Route = createFileRoute("/pricing")({
       { name: "description", content: "Every Lumen Bank fee, listed up front in plain language. No hidden charges." },
       { property: "og:title", content: "Lumen Bank pricing" },
       { property: "og:description", content: "Honest, upfront pricing with no hidden fees." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

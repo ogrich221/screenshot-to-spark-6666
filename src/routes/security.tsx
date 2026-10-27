@@ -8,6 +8,8 @@ export const Route = createFileRoute("/security")({
       { name: "description", content: "How Lumen Bank protects your money and data: encryption, deposit protection, fraud monitoring and human support." },
       { property: "og:title", content: "Lumen Bank security" },
       { property: "og:description", content: "Bank-grade security, explained in plain language." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

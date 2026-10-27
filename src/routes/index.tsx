@@ -14,6 +14,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Simple accounts, transparent fees, and complete control over your money. Lumen Bank: transparent by design." },
       { property: "og:title", content: "Lumen Bank — Banking, clearly." },
       { property: "og:description", content: "Simple accounts, transparent fees, and complete control over your money." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,

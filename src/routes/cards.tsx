@@ -8,6 +8,8 @@ export const Route = createFileRoute("/cards")({
       { name: "description", content: 'Contactless debit and metal cards with instant freeze, spending limits and zero fees abroad.' },
       { property: "og:title", content: 'Cards — Lumen Bank' },
       { property: "og:description", content: 'Contactless debit and metal cards with instant freeze, spending limits and zero fees abroad.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

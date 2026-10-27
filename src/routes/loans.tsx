@@ -8,6 +8,8 @@ export const Route = createFileRoute("/loans")({
       { name: "description", content: 'Personal loans with a fixed rate, no early repayment fees and a decision in minutes.' },
       { property: "og:title", content: 'Loans — Lumen Bank' },
       { property: "og:description", content: 'Personal loans with a fixed rate, no early repayment fees and a decision in minutes.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

@@ -8,6 +8,8 @@ export const Route = createFileRoute("/business")({
       { name: "description", content: 'Business accounts with clear pricing, team cards, invoicing and accounting integrations.' },
       { property: "og:title", content: 'Business banking — Lumen Bank' },
       { property: "og:description", content: 'Business accounts with clear pricing, team cards, invoicing and accounting integrations.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,

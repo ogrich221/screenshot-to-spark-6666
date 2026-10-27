@@ -11,7 +11,7 @@ export const Route = createFileRoute("/admin/customers/")({
     status: typeof s["status"] === "string" && s["status"] !== "All" ? s["status"] : undefined,
     segment: typeof s["segment"] === "string" && s["segment"] !== "All" ? s["segment"] : undefined,
   }),
-  head: () => ({ meta: [{ title: "Customers — Lumen Bank Admin" }, { name: "description", content: "Search and filter Lumen Bank customers." }] }),
+  head: () => ({ meta: [{ title: "Customers — Lumen Bank Admin" }, { name: "description", content: "Search and filter Lumen Bank customers." }, { property: "og:title", content: "Customers — Lumen Bank Admin" }, { property: "og:description", content: "Search and filter Lumen Bank customers." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Customers,
 });
 
