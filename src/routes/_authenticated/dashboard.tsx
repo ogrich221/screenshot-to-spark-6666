@@ -1,10 +1,11 @@
 import { Localized } from '@/components/localized';
+import { BackLink } from '@/components/back-link';
 import { TransferPreview } from '@/components/transfer-preview';
 import { createFileRoute, Link, useNavigate, redirect } from '@tanstack/react-router';
 import { checkAdmin } from '@/lib/admin-users.functions';
 import { queryOptions, useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Wallet, ShieldCheck, ArrowUpRight, CheckCircle2, Eye, EyeOff, LogOut, Home, Mail, Phone, MapPin, User, CreditCard, LifeBuoy, PiggyBank, Clock, Menu, Receipt, Landmark, HandCoins, type LucideIcon } from 'lucide-react';
+import { Wallet, ShieldCheck, ArrowLeft, ArrowUpRight, CheckCircle2, Eye, EyeOff, LogOut, Home, Mail, User, CreditCard, LifeBuoy, PiggyBank, Clock, Menu, Receipt, Landmark, HandCoins, type LucideIcon } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AvatarEditor, AvatarImage, useAvatar } from '@/components/profile-avatar';
 import type { ReactNode } from 'react';
@@ -42,10 +43,10 @@ function Page() {
     <header className="sticky top-0 z-40 border-b border-border bg-sidebar/90 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
         <div className="flex min-w-0 items-center gap-3">
-          <button onClick={() => setMenu(true)} aria-label="Open profile menu" className="flex items-center gap-2 rounded-full border border-border p-1 pr-3 transition hover:border-primary">
+          <Button variant="outline" onClick={() => setMenu(true)} aria-label="Open profile menu" className="flex items-center gap-2 rounded-full border border-border h-10 p-1 pr-3 transition hover:border-primary">
             <AvatarImage url={avatar.url} initials={initials} className="size-8 text-xs" />
             <Menu className="size-4 text-primary" />
-          </button>
+          </Button>
           <Link to="/" className="truncate font-display text-sm font-bold tracking-widest text-gold" translate="no">LUMEN BANK</Link>
         </div>
         <div className="flex items-center gap-2">
@@ -57,9 +58,19 @@ function Page() {
     </header>
     <Sheet open={menu} onOpenChange={setMenu}>
       <SheetContent side="left" className="w-[88vw] overflow-y-auto sm:max-w-md">
-        <SheetHeader><SheetTitle>My profile</SheetTitle></SheetHeader>
+        <SheetHeader><div className="flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => setMenu(false)} aria-label="Back to my account" title="Back to my account"><ArrowLeft /></Button><SheetTitle>My profile</SheetTitle></div></SheetHeader>
         <div className="mt-6 space-y-6 px-1 pb-8">
           <AvatarEditor avatar={avatar} initials={initials} />
+        <section className="border-b border-border pb-6">
+          <h2 className="flex items-center gap-2 font-semibold"><ShieldCheck className="size-5 text-primary" />Account security</h2>
+          <ul className="mt-5 space-y-3 text-sm">
+            <li className="flex justify-between"><span>Email</span><span className={data.emailVerified ? 'text-success' : 'text-warning'}>{data.emailVerified ? 'Verified' : 'Unverified'}</span></li>
+            <li className="flex justify-between"><span>Phone</span><span className={data.phoneVerified ? 'text-success' : 'text-muted-foreground'}>{data.phoneVerified ? 'Verified' : 'Unverified'}</span></li>
+            <li className="flex justify-between"><span>Transfer PIN</span><span className={data.account ? 'text-success' : 'text-muted-foreground'}>{data.account ? 'Set' : 'Not set'}</span></li>
+          </ul>
+          <Button asChild variant="outline" size="sm" className="mt-5 w-full"><Link to="/reset-password" onClick={() => setMenu(false)}>Change password</Link></Button>
+          <p className="mt-4 text-xs text-muted-foreground">Never share your password, transfer PIN or security answers.</p>
+        </section>
           <ProfileGroup icon={User} title="Personal details" rows={[['Full name', name], ['Date of birth', str(d, 'dob') || 'Not added'], ['Citizenship', str(d, 'citizenship') || 'Not added']]} />
           <ProfileGroup icon={Mail} title="Contact details" rows={[['Email', data.email], ['Phone', str(d, 'phone') || 'Not added'], ['Address', address || 'Not added']]} />
           <ProfileGroup icon={Receipt} title="Tax" rows={[['Tax residency', str(d, 'citizenship') || 'Not added'], ['Tax documents', 'None yet'], ['Annual statement', 'Available after your first full tax year']]} />
@@ -68,7 +79,8 @@ function Page() {
         </div>
       </SheetContent>
     </Sheet>
-    <main className="mx-auto max-w-6xl px-5 py-10">
+    <main className="mx-auto max-w-6xl px-5 py-6">
+      <div className="mb-4"><BackLink home /></div>
       <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center">
         <AvatarImage url={avatar.url} initials={initials} className="size-16 text-xl" />
         <div className="min-w-0 flex-1">
@@ -85,14 +97,13 @@ function Page() {
             <div className="flex items-center justify-between gap-3">
               <span className="flex gap-2 font-semibold"><Wallet className="size-5 text-primary" />LUMEN account</span>
               <div className="flex items-center gap-3"><span className="flex gap-1 text-xs text-success"><CheckCircle2 className="size-4" />{data.account.status}</span>
-                <button onClick={() => setShow(s => !s)} aria-label={show ? 'Hide balances' : 'Show balances'} aria-pressed={show} className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-primary">{show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button></div>
+                <Button variant="outline" size="icon" onClick={() => setShow(s => !s)} aria-label={show ? 'Hide balances' : 'Show balances'} aria-pressed={show} className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-primary">{show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</Button></div>
             </div>
-            <dl className="mt-8 grid gap-5 sm:grid-cols-2">
+            <dl className="mt-8">
               <div><dt className="text-sm text-muted-foreground">Available balance</dt><dd className="mt-2 text-3xl font-semibold text-primary">{money(data.account.available_balance)}</dd></div>
-              <div><dt className="text-sm text-muted-foreground">Current balance</dt><dd className="mt-2 text-3xl font-semibold">{money(data.account.current_balance)}</dd></div>
             </dl>
             <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">Application account · Banking services not connected</p>
-            <div className="mt-5 flex flex-wrap gap-3"><TransferPreview availableBalance={data.account.available_balance} /><Button variant="outline" className="h-12" onClick={() => setDeposit(true)}>Add money<ArrowUpRight /></Button></div>
+            <div className="mt-5 flex flex-wrap gap-3"><TransferPreview availableBalance={data.account.available_balance} /><TransferPreview availableBalance={data.account.available_balance} international /><Button variant="outline" className="h-12" onClick={() => setDeposit(true)}>Add money<ArrowUpRight /></Button></div>
           </div>
           <div className="rounded-2xl border border-border bg-card p-6">
             <h2 className="font-semibold">Quick links</h2>
@@ -103,26 +114,6 @@ function Page() {
           </div>
         </div>}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <section className="rounded-2xl border border-border bg-card p-6 lg:col-span-2">
-          <h2 className="flex items-center gap-2 font-semibold"><User className="size-5 text-primary" />Personal details</h2>
-          <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
-            {([[User, 'Full name', name], [Mail, 'Email', data.email], [Phone, 'Phone', str(d, 'phone') || 'Not added'], [MapPin, 'Address', address || 'Not added']] as const).map(([Icon, l, v]) =>
-              <div key={l} className="flex gap-3"><Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><div className="min-w-0"><dt className="text-muted-foreground">{l}</dt><dd className="mt-0.5 break-words font-medium" data-no-translate>{v}</dd></div></div>)}
-          </dl>
-        </section>
-        <section className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="flex items-center gap-2 font-semibold"><ShieldCheck className="size-5 text-primary" />Account security</h2>
-          <ul className="mt-5 space-y-3 text-sm">
-            <li className="flex justify-between"><span>Email</span><span className={data.emailVerified ? 'text-success' : 'text-warning'}>{data.emailVerified ? 'Verified' : 'Unverified'}</span></li>
-            <li className="flex justify-between"><span>Phone</span><span className={data.phoneVerified ? 'text-success' : 'text-muted-foreground'}>{data.phoneVerified ? 'Verified' : 'Unverified'}</span></li>
-            <li className="flex justify-between"><span>Transfer PIN</span><span className={data.account ? 'text-success' : 'text-muted-foreground'}>{data.account ? 'Set' : 'Not set'}</span></li>
-          </ul>
-          <Button asChild variant="outline" size="sm" className="mt-5 w-full"><Link to="/reset-password">Change password</Link></Button>
-          <p className="mt-4 text-xs text-muted-foreground">Never share your password, transfer PIN or security answers.</p>
-        </section>
-      </div>
-
       {data.account && <section className="mt-6 rounded-2xl border border-border bg-card p-6"><h2 className="flex items-center gap-2 font-semibold"><Clock className="size-5 text-primary" />Recent activity</h2><p className="mt-4 text-sm text-muted-foreground">Your account is open. No transactions yet.</p></section>}
 
       <Dialog open={deposit} onOpenChange={setDeposit}><DialogContent><DialogHeader><DialogTitle>Add money</DialogTitle><DialogDescription>Deposits will be available once banking services and identity verification are connected. No money can be added yet.</DialogDescription></DialogHeader><Button onClick={() => setDeposit(false)}>Got it</Button></DialogContent></Dialog>
@@ -131,7 +122,7 @@ function Page() {
 }
 
 function ProfileGroup({ icon: Icon, title, rows, action }: { icon: LucideIcon; title: string; rows: [string, string][]; action?: ReactNode }) {
-  return <section className="rounded-xl border border-border bg-card p-4">
+  return <section className="border-b border-border pb-5">
     <h3 className="flex items-center gap-2 text-sm font-semibold"><Icon className="size-4 text-primary" />{title}</h3>
     <dl className="mt-3 space-y-2 text-sm">{rows.map(([l, v]) => <div key={l} className="flex justify-between gap-4"><dt className="text-muted-foreground">{l}</dt><dd className="break-words text-right font-medium" data-no-translate>{v}</dd></div>)}</dl>
     {action && <div className="mt-3">{action}</div>}

@@ -16,3 +16,6 @@
 - Customer transfer previews use a pure cent-based calculation and never submit payments, debit balances or issue payment receipts until regulated payment services exist; this prevents false financial confirmations.
 - Hash onboarding secrets in authenticated server functions and keep their table unreadable to customers; account creation is idempotent.
 - Languages use static reviewed catalogues and React-rendered localization boundaries; never mutate rendered DOM text or translate user-entered form values.
+
+- Initial hydration and pending navigation share the bank-photo loading component so loading stays branded without delaying completed requests.
+- International wires use the same non-submitting transfer preview with ephemeral beneficiary bank fields; no wire details are persisted or sent.
