@@ -40,9 +40,9 @@ function Index() {
   return (
     <Shell>
     <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1100px] md:h-[900px]">
-        <img src={building} alt="Lumen Bank headquarters at dusk" width={1920} height={1088} className="h-full w-full object-cover object-[60%_center] opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background/20" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] md:h-[900px]">
+        <img src={building} alt="Lumen Bank headquarters at dusk" width={1920} height={1088} className="h-full w-full object-cover object-[47%_28%] opacity-75 md:object-center" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
       </div>
 
