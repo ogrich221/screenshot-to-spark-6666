@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          balance_after: number
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          narration: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          balance_after: number
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: string
+          narration: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          narration?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_accounts: {
         Row: {
           available_balance: number
@@ -178,6 +229,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_post_transaction: {
+        Args: {
+          p_amount: number
+          p_kind: string
+          p_narration: string
+          p_user_id: string
+        }
+        Returns: number
+      }
       complete_customer_onboarding: {
         Args: {
           p_answer_hashes: string[]
