@@ -4,25 +4,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Localized } from '@/components/localized';
+import { useQuery } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
+import { myCards } from '@/lib/admin-users.functions';
 import { transferPreview } from '@/lib/transfer-preview';
 
 const money = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 const billTypes = [['Electricity', Zap], ['Water', Droplets], ['Gas', Flame], ['Internet & phone', Wifi]] as const;
 
 export function CustomerCards({ name, email }: { name: string; email: string }) {
+  const cards = useQuery({ queryKey: ['my-cards'], queryFn: useServerFn(myCards) });
+  const issued = cards.data ?? [];
+  const shown = issued.length ? issued.map(c => ({ key: c.id, type: c.cardType === 'Physical' ? 'Physical card' : 'Virtual card', physical: c.cardType === 'Physical', holder: c.cardholderName, number: `•••• •••• •••• ${c.last4}`, expires: c.expires, limit: c.creditLimit, status: c.status }))
+    : (['Physical card', 'Virtual card'] as const).map((type, i) => ({ key: type, type, physical: i === 0, holder: name, number: '•••• •••• •••• ••••', expires: null as string | null, limit: null as number | null, status: null as string | null }));
   return <Localized><section className="mt-8 border-t border-border pt-7">
-    <div className="mb-5 flex items-center justify-between gap-3"><h2 className="flex items-center gap-2 text-lg font-semibold"><CreditCard className="size-5 text-primary" />Your credit cards</h2><span className="text-xs text-muted-foreground">Not issued</span></div>
+    <div className="mb-5 flex items-center justify-between gap-3"><h2 className="flex items-center gap-2 text-lg font-semibold"><CreditCard className="size-5 text-primary" />Your credit cards</h2><span className="text-xs text-muted-foreground">{issued.length ? `${issued.length} issued` : 'Not issued'}</span></div>
     <div className="grid gap-5 md:grid-cols-2">
-      {(['Physical card', 'Virtual card'] as const).map((type, index) => <article key={type} className="min-w-0">
-        <div className={`relative flex aspect-[1.586] w-full max-w-md flex-col justify-between overflow-hidden rounded-lg border border-primary/30 p-5 sm:p-6 ${index === 0 ? 'bg-gold text-primary-foreground' : 'bg-sidebar text-foreground'}`}>
-          <div className="flex items-center justify-between gap-3"><span className="font-display text-sm font-bold" translate="no">LUMEN BANK</span>{index === 0 ? <Wifi className="size-5 rotate-90" /> : <Smartphone className="size-5 text-primary" />}</div>
-          <div><CreditCard className="mb-2 size-8" /><p className="font-mono text-lg sm:text-xl" aria-label="Card number not issued">•••• •••• •••• ••••</p></div>
-          <div className="flex min-w-0 items-end justify-between gap-3"><div className="min-w-0"><p className="text-[10px] uppercase">Cardholder</p><p className="truncate text-sm font-semibold" data-no-translate>{name}</p></div><span className="shrink-0 text-xs">{type}</span></div>
+      {shown.map(c => <article key={c.key} className="min-w-0">
+        <div className={`relative flex aspect-[1.586] w-full max-w-md flex-col justify-between overflow-hidden rounded-lg border border-primary/30 p-5 sm:p-6 ${c.physical ? 'bg-gold text-primary-foreground' : 'bg-sidebar text-foreground'} ${c.status === 'Frozen' ? 'opacity-60' : ''}`}>
+          <div className="flex items-center justify-between gap-3"><span className="font-display text-sm font-bold" translate="no">LUMEN BANK</span>{c.physical ? <Wifi className="size-5 rotate-90" /> : <Smartphone className="size-5 text-primary" />}</div>
+          <div><CreditCard className="mb-2 size-8" /><p className="font-mono text-lg sm:text-xl" data-no-translate>{c.number}</p></div>
+          <div className="flex min-w-0 items-end justify-between gap-3"><div className="min-w-0"><p className="text-[10px] uppercase">Cardholder</p><p className="truncate text-sm font-semibold" data-no-translate>{c.holder}</p></div><div className="shrink-0 text-right text-xs">{c.expires && <p data-no-translate>{c.expires}</p>}<p>{c.type}</p></div></div>
         </div>
-        <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-muted-foreground"><span className="break-all" data-no-translate>{email}</span><span>Card design preview</span></div>
+        <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs text-muted-foreground"><span className="break-all" data-no-translate>{email}</span><span>{c.status ? `${c.status} · limit ${money(c.limit ?? 0)}` : 'Card design preview'}</span></div>
       </article>)}
     </div>
-    <p className="mt-4 text-xs text-muted-foreground">No card number, credit limit or expiry has been issued.</p>
+    {!issued.length && <p className="mt-4 text-xs text-muted-foreground">No card has been issued yet.</p>}
   </section></Localized>;
 }
 
