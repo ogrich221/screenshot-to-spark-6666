@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Download, Info, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Download, Globe, Info, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,18 +10,22 @@ import { transferPreview } from '@/lib/transfer-preview';
 
 const money = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
-export function TransferPreview({ availableBalance }: { availableBalance: number }) {
+export function TransferPreview({ availableBalance, international = false }: { availableBalance: number; international?: boolean }) {
   const { lang } = useLocale();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'details' | 'review' | 'summary'>('details');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [reference, setReference] = useState('');
+  const [bank, setBank] = useState('');
+  const [country, setCountry] = useState('');
+  const [account, setAccount] = useState('');
+  const [swift, setSwift] = useState('');
   const preview = transferPreview(availableBalance, amount);
 
   function review(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (recipient.trim() && preview.valid && preview.withinLimit) setStep('review');
+    if (recipient.trim() && preview.valid && preview.withinLimit && (!international || (bank.trim() && country.trim() && account.trim() && swift.trim()))) setStep('review');
   }
 
   function download() {
@@ -33,6 +37,7 @@ export function TransferPreview({ availableBalance }: { availableBalance: number
       `${t(preview.sufficient ? 'Estimated balance after transfer' : 'Balance unchanged')}: ${money(preview.remainingBalance)}`,
       `${t('Reference or note')}: ${reference.trim() || '—'}`,
       `${t('Fees and delivery time')}: ${t('Not available until banking services are connected.')}`,
+      ...(international ? [`${t('International wire transfer')}: USD`, `${t('Bank name')}: ${bank.trim()}`, `${t('Bank country')}: ${country.trim()}`, `${t('IBAN or account number')}: ${account.trim()}`, `${t('SWIFT / BIC')}: ${swift.trim()}`] : []),
     ].join('\n');
     const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
     const link = document.createElement('a');
@@ -43,11 +48,11 @@ export function TransferPreview({ availableBalance }: { availableBalance: number
   }
 
   return <Localized><>
-    <Button className="h-12" onClick={() => { setStep('details'); setRecipient(''); setAmount(''); setReference(''); setOpen(true); }}>Send money<ArrowUpRight /></Button>
+    <Button variant={international ? 'outline' : 'default'} className="h-12" onClick={() => { setStep('details'); setRecipient(''); setAmount(''); setReference(''); setBank(''); setCountry(''); setAccount(''); setSwift(''); setOpen(true); }}>{international ? <><Globe />International wire transfer</> : <>Send money<ArrowUpRight /></>}</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-lg sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{step === 'details' ? 'Plan a transfer' : step === 'review' ? 'Review transfer' : 'Transfer preview summary'}</DialogTitle>
+          <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" title="Back" onClick={() => step === 'details' ? setOpen(false) : setStep(step === 'summary' ? 'review' : 'details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? international ? 'International wire transfer' : 'Plan a transfer' : step === 'review' ? 'Review transfer' : 'Transfer preview summary'}</DialogTitle></div>
           <DialogDescription>Preview only. Transfers are not available until banking services are connected.</DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-2 border-b border-border pb-4 text-xs text-muted-foreground" aria-label="Transfer progress">
@@ -57,6 +62,14 @@ export function TransferPreview({ availableBalance }: { availableBalance: number
         </div>
         {step === 'details' ? <form onSubmit={review} className="space-y-5">
           <label className="block text-sm font-medium" htmlFor="transfer-recipient">Recipient full name<Input id="transfer-recipient" className="mt-2 h-12" required maxLength={100} value={recipient} onChange={event => setRecipient(event.target.value)} /></label>
+          {international && <fieldset className="space-y-4 border-y border-border py-4">
+            <legend className="text-sm font-semibold">Recipient bank details</legend>
+            <label className="block text-sm font-medium" htmlFor="wire-bank">Bank name<Input id="wire-bank" className="mt-2 h-12" required maxLength={120} value={bank} onChange={event => setBank(event.target.value)} /></label>
+            <label className="block text-sm font-medium" htmlFor="wire-country">Bank country<Input id="wire-country" className="mt-2 h-12" required maxLength={80} value={country} onChange={event => setCountry(event.target.value)} /></label>
+            <label className="block text-sm font-medium" htmlFor="wire-account">IBAN or account number<Input id="wire-account" className="mt-2 h-12" required maxLength={64} value={account} onChange={event => setAccount(event.target.value)} /></label>
+            <label className="block text-sm font-medium" htmlFor="wire-swift">SWIFT / BIC<Input id="wire-swift" className="mt-2 h-12" required maxLength={11} value={swift} onChange={event => setSwift(event.target.value.toUpperCase())} /></label>
+            <p className="text-xs text-muted-foreground">USD preview only. Bank details, exchange rates and intermediary fees are not verified.</p>
+          </fieldset>}
           <label className="block text-sm font-medium" htmlFor="transfer-amount">Transfer amount (USD)<Input id="transfer-amount" className="mt-2 h-12" required inputMode="decimal" placeholder="0.00" value={amount} onChange={event => setAmount(event.target.value)} aria-describedby="transfer-amount-help" aria-invalid={Boolean(amount && (!preview.valid || !preview.withinLimit))} /></label>
           <p id="transfer-amount-help" className="text-xs text-muted-foreground">You can send up to $5,000,000 a day. Terms and conditions apply.</p>
           {amount && !preview.valid && <p role="alert" className="text-sm text-destructive">Enter an amount greater than zero with up to two decimal places.</p>}
@@ -69,6 +82,7 @@ export function TransferPreview({ availableBalance }: { availableBalance: number
           <dl className="space-y-4 border-b border-border py-3 text-sm">
             <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Recipient</dt><dd className="max-w-[65%] break-words text-right" data-no-translate>{recipient.trim()}</dd></div>
             <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Transfer amount</dt><dd>{money(preview.amount)}</dd></div>
+            {international && [['Bank name', bank], ['Bank country', country], ['IBAN or account number', account], ['SWIFT / BIC', swift]].map(([label, value]) => <div key={label} className="flex justify-between gap-5"><dt className="text-muted-foreground">{label}</dt><dd className="max-w-[60%] break-all text-right" data-no-translate>{value}</dd></div>)}
             {reference.trim() && <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Reference or note</dt><dd className="max-w-[65%] break-words text-right" data-no-translate>{reference.trim()}</dd></div>}
             <div><dt className="text-muted-foreground">Fees and delivery time</dt><dd className="mt-1">Not available until banking services are connected.</dd></div>
           </dl>
