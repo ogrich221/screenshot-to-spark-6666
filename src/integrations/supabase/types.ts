@@ -14,13 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customer_accounts: {
+        Row: {
+          available_balance: number
+          current_balance: number
+          id: string
+          identity_consent_at: string
+          opened_at: string
+          privacy_version: string
+          status: string
+          terms_version: string
+          user_id: string
+        }
+        Insert: {
+          available_balance?: number
+          current_balance?: number
+          id?: string
+          identity_consent_at: string
+          opened_at?: string
+          privacy_version: string
+          status?: string
+          terms_version: string
+          user_id: string
+        }
+        Update: {
+          available_balance?: number
+          current_balance?: number
+          id?: string
+          identity_consent_at?: string
+          opened_at?: string
+          privacy_version?: string
+          status?: string
+          terms_version?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_security: {
+        Row: {
+          answer_hashes: string[]
+          biometric_preference: boolean
+          pin_hash: string
+          question_ids: string[]
+          user_id: string
+        }
+        Insert: {
+          answer_hashes: string[]
+          biometric_preference?: boolean
+          pin_hash: string
+          question_ids: string[]
+          user_id: string
+        }
+        Update: {
+          answer_hashes?: string[]
+          biometric_preference?: boolean
+          pin_hash?: string
+          question_ids?: string[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_security_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          details: Json
+          id: string
+          onboarding_step: number
+          updated_at: string
+        }
+        Insert: {
+          details?: Json
+          id: string
+          onboarding_step?: number
+          updated_at?: string
+        }
+        Update: {
+          details?: Json
+          id?: string
+          onboarding_step?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      complete_customer_onboarding: {
+        Args: {
+          p_answer_hashes: string[]
+          p_biometric: boolean
+          p_pin_hash: string
+          p_question_ids: string[]
+        }
+        Returns: string
+      }
+      finalize_customer_account: {
+        Args: {
+          p_answer_hashes: string[]
+          p_biometric: boolean
+          p_pin_hash: string
+          p_question_ids: string[]
+          p_user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

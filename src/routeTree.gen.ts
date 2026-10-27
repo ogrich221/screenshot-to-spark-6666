@@ -10,16 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as CardsRouteImport } from './routes/cards'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LoansRouteImport } from './routes/loans'
+import { Route as OpenAccountRouteImport } from './routes/open-account'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SavingsRouteImport } from './routes/savings'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as TransfersRouteImport } from './routes/transfers'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
 import { Route as AdminCardsRouteImport } from './routes/admin.cards'
@@ -36,9 +41,18 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusinessRoute = BusinessRouteImport.update({
@@ -61,9 +75,19 @@ const LoansRoute = LoansRouteImport.update({
   path: '/loans',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OpenAccountRoute = OpenAccountRouteImport.update({
+  id: '/open-account',
+  path: '/open-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavingsRoute = SavingsRouteImport.update({
@@ -85,6 +109,11 @@ const TransfersRoute = TransfersRouteImport.update({
   id: '/transfers',
   path: '/transfers',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -140,15 +169,19 @@ const AdminCustomersIdRoute = AdminCustomersIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/cards': typeof CardsRoute
   '/how-it-works': typeof HowItWorksRoute
   '/loans': typeof LoansRoute
+  '/open-account': typeof OpenAccountRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/savings': typeof SavingsRoute
   '/security': typeof SecurityRoute
   '/support': typeof SupportRoute
   '/transfers': typeof TransfersRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/cards': typeof AdminCardsRoute
   '/admin/cases': typeof AdminCasesRoute
@@ -162,15 +195,19 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/cards': typeof CardsRoute
   '/how-it-works': typeof HowItWorksRoute
   '/loans': typeof LoansRoute
+  '/open-account': typeof OpenAccountRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/savings': typeof SavingsRoute
   '/security': typeof SecurityRoute
   '/support': typeof SupportRoute
   '/transfers': typeof TransfersRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/cards': typeof AdminCardsRoute
   '/admin/cases': typeof AdminCasesRoute
@@ -185,16 +222,21 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
   '/business': typeof BusinessRoute
   '/cards': typeof CardsRoute
   '/how-it-works': typeof HowItWorksRoute
   '/loans': typeof LoansRoute
+  '/open-account': typeof OpenAccountRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/savings': typeof SavingsRoute
   '/security': typeof SecurityRoute
   '/support': typeof SupportRoute
   '/transfers': typeof TransfersRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/cards': typeof AdminCardsRoute
   '/admin/cases': typeof AdminCasesRoute
@@ -211,15 +253,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/auth'
     | '/business'
     | '/cards'
     | '/how-it-works'
     | '/loans'
+    | '/open-account'
     | '/pricing'
+    | '/reset-password'
     | '/savings'
     | '/security'
     | '/support'
     | '/transfers'
+    | '/dashboard'
     | '/admin/accounts'
     | '/admin/cards'
     | '/admin/cases'
@@ -233,15 +279,19 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/business'
     | '/cards'
     | '/how-it-works'
     | '/loans'
+    | '/open-account'
     | '/pricing'
+    | '/reset-password'
     | '/savings'
     | '/security'
     | '/support'
     | '/transfers'
+    | '/dashboard'
     | '/admin/accounts'
     | '/admin/cards'
     | '/admin/cases'
@@ -255,16 +305,21 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/admin'
+    | '/auth'
     | '/business'
     | '/cards'
     | '/how-it-works'
     | '/loans'
+    | '/open-account'
     | '/pricing'
+    | '/reset-password'
     | '/savings'
     | '/security'
     | '/support'
     | '/transfers'
+    | '/_authenticated/dashboard'
     | '/admin/accounts'
     | '/admin/cards'
     | '/admin/cases'
@@ -279,12 +334,16 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  AuthRoute: typeof AuthRoute
   BusinessRoute: typeof BusinessRoute
   CardsRoute: typeof CardsRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LoansRoute: typeof LoansRoute
+  OpenAccountRoute: typeof OpenAccountRoute
   PricingRoute: typeof PricingRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SavingsRoute: typeof SavingsRoute
   SecurityRoute: typeof SecurityRoute
   SupportRoute: typeof SupportRoute
@@ -300,11 +359,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/business': {
@@ -335,11 +408,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/open-account': {
+      id: '/open-account'
+      path: '/open-account'
+      fullPath: '/open-account'
+      preLoaderRoute: typeof OpenAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/savings': {
@@ -369,6 +456,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/transfers'
       preLoaderRoute: typeof TransfersRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -443,6 +537,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 interface AdminRouteChildren {
   AdminAccountsRoute: typeof AdminAccountsRoute
   AdminCardsRoute: typeof AdminCardsRoute
@@ -473,12 +578,16 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  AuthRoute: AuthRoute,
   BusinessRoute: BusinessRoute,
   CardsRoute: CardsRoute,
   HowItWorksRoute: HowItWorksRoute,
   LoansRoute: LoansRoute,
+  OpenAccountRoute: OpenAccountRoute,
   PricingRoute: PricingRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SavingsRoute: SavingsRoute,
   SecurityRoute: SecurityRoute,
   SupportRoute: SupportRoute,

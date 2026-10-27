@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { FAQ, PageHero, Shell, Stats } from "@/components/site";
@@ -9,6 +10,8 @@ export const Route = createFileRoute("/savings")({
       { name: "description", content: "Set savings goals, earn up to 4.1% interest and see exactly how much to put aside each week." },
       { property: "og:title", content: "Save with Lumen Bank" },
       { property: "og:description", content: "Friendly savings goals with a clear plan to reach them." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,
@@ -19,7 +22,7 @@ function Page() {
   const [months, setMonths] = useState(12);
   const weekly = goal / (months * 4.33);
   return (
-    <Shell>
+    <Localized><Shell>
       <PageHero eyebrow="Savings & Goals" title="Savings & goals you can actually see." sub="Name it, date it, and watch it grow—up to 4.1% interest, paid monthly." />
       <section className="mx-auto grid max-w-6xl gap-8 px-5 md:grid-cols-2">
         <div className="glass rounded-3xl p-8">
@@ -44,6 +47,6 @@ function Page() {
       </section>
       <Stats items={[["4.1%", "AER on Plus savings"], ["Monthly", "interest payouts"], ["Unlimited", "savings goals"], ["$0", "withdrawal fees"]]} />
       <FAQ items={[["How is interest calculated?", "Interest is calculated daily on your balance and paid into your goal on the first day of each month."], ["Is my savings money protected?", "Yes. Savings are held in the same protected accounts as your everyday balance."], ["Can I have more than one goal?", "Of course. Create as many goals as you like, each with its own name, target and date."], ["Can I lock a goal?", "Yes. Lock a goal until a chosen date to help you resist temptation."]]} />
-    </Shell>
+    </Shell></Localized>
   );
 }

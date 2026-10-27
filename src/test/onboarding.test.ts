@@ -1,0 +1,11 @@
+import { describe, expect, it } from 'vitest';
+import { pinSchema, securitySchema, consentSchema, initialBalances, questionOptions } from '@/lib/onboarding';
+describe('Customer onboarding requirements', () => {
+  it('starts available balance at 0.00', () => { expect(initialBalances.available).toBe(0); });
+  it('starts current balance at 0.00', () => { expect(initialBalances.current).toBe(0); });
+  it('accepts matching numeric PINs between 4 and 6 digits', () => { for (const pin of ['4829', '48291', '482916']) expect(pinSchema.safeParse({ pin, confirmPin: pin, biometric: false }).success).toBe(true); });
+  it('rejects out-of-range or non-numeric PINs', () => { for (const pin of ['482', '4829163', 'abcd']) expect(pinSchema.safeParse({ pin, confirmPin: pin, biometric: false }).success).toBe(false); });
+  it('requires a matching PIN confirmation', () => { expect(pinSchema.safeParse({ pin: '4829', confirmPin: '4821', biometric: false }).success).toBe(false); });
+  it('requires three distinct security questions', () => { expect(securitySchema.safeParse({ questions: questionOptions.slice(0, 3), answers: ['school', 'city', 'name'] }).success).toBe(true); expect(securitySchema.safeParse({ questions: [questionOptions[0], questionOptions[0], questionOptions[1]], answers: ['school', 'city', 'name'] }).success).toBe(false); });
+  it.each(['terms', 'privacy', 'identity'])('requires %s consent', key => { expect(consentSchema.safeParse({ terms: true, privacy: true, identity: true, [key]: false }).success).toBe(false); });
+});

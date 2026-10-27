@@ -124,7 +124,7 @@
   }
 }
 
-@layer base { h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.03em; } body { font-family: var(--font-sans); } }
+@layer base { h1,h2,h3 { font-family: var(--font-display); letter-spacing: 0; } body { font-family: var(--font-sans); } }
 @utility glass { background: oklch(0.2 0.01 80 / 0.55); backdrop-filter: blur(20px) saturate(140%); border: 1px solid oklch(0.8 0.13 85 / 0.18); box-shadow: var(--shadow-soft); }
 @utility bg-light { background-image: var(--gradient-light); }
 @utility bg-gold { background-image: var(--gradient-gold); }

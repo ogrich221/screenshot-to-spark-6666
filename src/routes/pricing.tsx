@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Localized } from '@/components/localized';
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from '@/components/ui/button';
 import { FAQ, PageHero, Shell, Stats } from "@/components/site";
 
 export const Route = createFileRoute("/pricing")({
@@ -8,6 +10,8 @@ export const Route = createFileRoute("/pricing")({
       { name: "description", content: "Every Lumen Bank fee, listed up front in plain language. No hidden charges." },
       { property: "og:title", content: "Lumen Bank pricing" },
       { property: "og:description", content: "Honest, upfront pricing with no hidden fees." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,
@@ -26,7 +30,7 @@ const fees = [
 
 function Page() {
   return (
-    <Shell>
+    <Localized><Shell>
       <PageHero eyebrow="Fees & Pricing" title="Fees & pricing, in plain sight." sub="If something costs money, you'll see it here—and in the app before you tap." />
       <section className="mx-auto grid max-w-6xl gap-6 px-5 md:grid-cols-3">
         {plans.map((p) => (
@@ -36,7 +40,7 @@ function Page() {
             <ul className="mt-6 space-y-3 text-sm">
               {p.features.map((f) => <li key={f} className="flex gap-2"><span aria-hidden>✓</span>{f}</li>)}
             </ul>
-            <a href="#open" className={`mt-8 inline-flex h-12 w-full items-center justify-center rounded-full font-semibold ${p.featured ? "bg-background text-foreground" : "border border-primary text-primary"}`}>Choose {p.name}</a>
+            <Button asChild variant="outline" className={`mt-8 h-12 w-full rounded-full font-semibold ${p.featured ? "bg-background text-foreground" : "border-primary text-primary"}`}><Link to="/open-account">Choose {p.name}</Link></Button>
           </div>
         ))}
       </section>
@@ -56,6 +60,6 @@ function Page() {
       </section>
       <Stats items={[["$0", "monthly fee on Essential"], ["0%", "markup on card spending abroad"], ["0.35%", "flat currency conversion fee"], ["30 days", "notice before any price change"]]} />
       <FAQ items={[["Are there any hidden fees?", "No. Every fee we charge is listed on this page and shown in the app before you confirm a transaction."], ["Can I change plans?", "Yes. Upgrade or downgrade at any time from the app. Changes apply from your next billing date."], ["Will prices change?", "If we ever change a fee, we'll tell you at least 30 days in advance, and you can switch or close your account at no cost."], ["What happens if I cancel?", "There are no exit fees. We'll transfer your remaining balance to any account you choose."]]} />
-    </Shell>
+    </Shell></Localized>
   );
 }

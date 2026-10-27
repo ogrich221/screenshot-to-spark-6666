@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { customers } from "@/lib/admin-data";
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/admin/customers/")({
     status: typeof s["status"] === "string" && s["status"] !== "All" ? s["status"] : undefined,
     segment: typeof s["segment"] === "string" && s["segment"] !== "All" ? s["segment"] : undefined,
   }),
-  head: () => ({ meta: [{ title: "Customers — Lumen Bank Admin" }, { name: "description", content: "Search and filter Lumen Bank customers." }] }),
+  head: () => ({ meta: [{ title: "Customers — Lumen Bank Admin" }, { name: "description", content: "Search and filter Lumen Bank customers." }, { property: "og:title", content: "Customers — Lumen Bank Admin" }, { property: "og:description", content: "Search and filter Lumen Bank customers." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Customers,
 });
 
@@ -27,7 +28,7 @@ function Customers() {
     (!search.status || c.status === search.status) && (!search.segment || c.segment === search.segment));
 
   return (
-    <>
+    <Localized><>
       <PageHeader crumbs={[{ label: "Dashboard", to: "/admin" }, { label: "Customers" }]} back={{ label: "Back to dashboard", to: "/admin" }}
         title="Customers" sub="Find anyone by name, email, ID or country. Your filters stay in place when you come back." />
       <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Saved views">
@@ -79,6 +80,6 @@ function Customers() {
         )}
         <p className="mt-4 text-sm text-muted-foreground">Showing {rows.length} of {customers.length} customers</p>
       </Panel>
-    </>
+    </></Localized>
   );
 }

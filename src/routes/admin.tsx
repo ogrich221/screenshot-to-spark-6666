@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -7,6 +8,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { alerts } from "@/lib/admin-data";
 import { StatusBadge } from "@/components/admin/ui";
+import { useLocale } from '@/lib/locale';
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -15,6 +17,8 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "Lumen Bank operations workspace for customers, accounts, transactions and compliance." },
       { property: "og:title", content: "Lumen Bank Admin" },
       { property: "og:description", content: "A clear, secure operations workspace for Lumen Bank teams." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -35,16 +39,16 @@ export const NAV = [
 
 function Logo({ small }: { small?: boolean }) {
   return (
-    <Link to="/admin" className="flex items-center gap-2 font-display font-bold tracking-wider">
+    <Localized><Link to="/admin" className="flex items-center gap-2 font-display font-bold tracking-wider">
       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold shadow-glow"><span className="h-2.5 w-2.5 rounded-full bg-background" /></span>
       {!small && <span className="whitespace-nowrap">LUMEN <span className="text-primary">BANK</span></span>}
-    </Link>
+    </Link></Localized>
   );
 }
 
 function NavList({ collapsed, onNav }: { collapsed?: boolean; onNav?: () => void }) {
   return (
-    <nav aria-label="Admin" className="flex flex-col gap-1">
+    <Localized><nav aria-label="Admin" className="flex flex-col gap-1">
       {NAV.map(({ to, label, icon: Icon }) => (
         <Link key={to} to={to} onClick={onNav} title={collapsed ? label : undefined}
           activeOptions={{ exact: to === "/admin" }}
@@ -54,11 +58,12 @@ function NavList({ collapsed, onNav }: { collapsed?: boolean; onNav?: () => void
           {!collapsed && <span>{label}</span>}
         </Link>
       ))}
-    </nav>
+    </nav></Localized>
   );
 }
 
 function AdminLayout() {
+  const { lang, setLang } = useLocale();
   const [collapsed, setCollapsed] = useState(false);
   const [mobile, setMobile] = useState(false);
   const [bell, setBell] = useState(false);
@@ -70,7 +75,7 @@ function AdminLayout() {
   const isRoot = path === "/admin" || path === "/admin/";
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <Localized><div className="flex min-h-screen w-full bg-background">
       <Toaster position="top-center" theme="dark" richColors />
       {/* Desktop sidebar */}
       <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-sidebar p-4 transition-all lg:flex ${collapsed ? "w-20" : "w-64"}`}>
@@ -114,6 +119,8 @@ function AdminLayout() {
               className="h-11 w-full rounded-full border border-border bg-secondary pl-11 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
           </form>
           <div className="ml-auto flex items-center gap-2">
+            <label className="sr-only" htmlFor="admin-language">Language</label>
+            <select id="admin-language" value={lang} onChange={e => { const value = e.target.value; if (value === 'en' || value === 'fr' || value === 'es' || value === 'de' || value === 'pt') setLang(value); }} className="h-9 rounded-md border border-border bg-secondary px-2 text-xs"><option value="en">EN</option><option value="fr">FR</option><option value="es">ES</option><option value="de">DE</option><option value="pt">PT</option></select>
             <span className="hidden items-center gap-1.5 rounded-full bg-success/15 px-3 py-1.5 text-xs font-semibold text-success sm:inline-flex" title="Your session is encrypted and expires after 15 minutes of inactivity">
               <Lock className="h-3.5 w-3.5" /> Secure session
             </span>
@@ -160,6 +167,6 @@ function AdminLayout() {
           ))}
         </nav>
       </div>
-    </div>
+    </div></Localized>
   );
 }

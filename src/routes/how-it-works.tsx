@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute } from "@tanstack/react-router";
 import { FAQ, PageHero, Shell, Stats } from "@/components/site";
 
@@ -8,6 +9,8 @@ export const Route = createFileRoute("/how-it-works")({
       { name: "description", content: "Open a Lumen account in minutes and see every payment, fee and balance in real time." },
       { property: "og:title", content: "How Lumen Bank works" },
       { property: "og:description", content: "Open in minutes. See everything. Stay in control." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Page,
@@ -22,7 +25,7 @@ const steps = [
 
 function Page() {
   return (
-    <Shell>
+    <Localized><Shell>
       <PageHero eyebrow="Personal Banking" title="Personal banking, designed around you." sub="Four simple steps. No jargon, no fine print, no waiting on hold." />
       <section className="mx-auto max-w-6xl px-5">
         <ol className="grid gap-6 md:grid-cols-2">
@@ -59,6 +62,6 @@ function Page() {
         </ul>
       </section>
       <FAQ items={[["Who can open an account?", "Anyone aged 18 or over with a valid passport or national ID and a residential address in a supported country."], ["Is there a minimum deposit?", "No. You can open your account with a zero balance and add money whenever you're ready."], ["Can I switch my salary to Lumen?", "Yes. Share your new account details with your employer, or use our switching service and we'll move your payments for you."], ["How do I contact support?", "Tap Help in the app to chat with a real person, any time of day. You can also call us on the number printed on your card."]]} />
-    </Shell>
+    </Shell></Localized>
   );
 }

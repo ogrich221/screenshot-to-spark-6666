@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { accounts, cards, cases, alerts, transactions, customerById, money } from "@/lib/admin-data";
@@ -5,14 +6,14 @@ import { DataPage, CustomerLink } from "@/components/admin/DataPage";
 import { PageHeader, Panel, StatusBadge, btnGhost, btnPrimary } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/admin/settings")({
-  head: () => ({ meta: [{ title: "Settings — Lumen Bank Admin" }, { name: "description", content: "Workspace and security settings." }] }),
+  head: () => ({ meta: [{ title: "Settings — Lumen Bank Admin" }, { name: "description", content: "Workspace and security settings." }, { property: "og:title", content: "Settings — Lumen Bank Admin" }, { property: "og:description", content: "Workspace and security settings." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 
 function Page() {
   const items = [["Two-step sign-in", "Require a code from your authenticator app", true], ["Session timeout", "Sign out after 15 minutes of inactivity", true], ["Large transaction alerts", "Notify me about payments over $25,000", true], ["Daily summary email", "Send the overview every morning at 07:00", false]] as const;
   return (
-    <>
+    <Localized><>
       <PageHeader crumbs={[{ label: "Dashboard", to: "/admin" }, { label: "Settings" }]} back={{ label: "Back to dashboard", to: "/admin" }} title="Settings" sub="Your profile, security and notifications." />
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel title="Profile">
@@ -36,6 +37,6 @@ function Page() {
           <p className="text-sm text-muted-foreground">New to the workspace? Every page has a breadcrumb at the top and a back button. Info icons explain what each number means. Most actions can be undone from the message that appears afterwards.</p>
         </Panel>
       </div>
-    </>
+    </></Localized>
   );
 }

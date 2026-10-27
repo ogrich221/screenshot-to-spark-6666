@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -5,6 +6,7 @@ import { Shell, useT } from "@/components/site";
 import building from "@/assets/bank-building.jpg";
 import staffDesk from "@/assets/staff-desk.jpg";
 import manager from "@/assets/branch-manager.jpg";
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,6 +15,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Simple accounts, transparent fees, and complete control over your money. Lumen Bank: transparent by design." },
       { property: "og:title", content: "Lumen Bank — Banking, clearly." },
       { property: "og:description", content: "Simple accounts, transparent fees, and complete control over your money." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -40,7 +44,7 @@ const RATES: Record<string, { name: string; rate: number }> = {
 function Index() {
   const { t } = useT();
   return (
-    <Shell>
+    <Localized><Shell>
     <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0">
         <img src={building} alt="Lumen Bank headquarters at dusk" width={1920} height={1088} className="h-auto w-full opacity-80" />
@@ -55,7 +59,7 @@ function Index() {
           <h1 className="mt-6 text-5xl font-bold leading-[1.02] md:text-7xl text-gold">{t.h}</h1>
           <p className="mt-6 max-w-md text-lg text-muted-foreground">{t.sub}</p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#open" className="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 font-semibold text-primary-foreground shadow-glow transition hover:-translate-y-0.5">{t.cta}</a>
+            <Button asChild className="h-14 rounded-full bg-gold px-8 font-semibold shadow-glow transition hover:-translate-y-0.5"><Link to="/open-account">{t.cta}</Link></Button>
             <Link to="/how-it-works" className="glass inline-flex h-14 items-center justify-center rounded-full px-8 font-semibold">{t.cta2} →</Link>
           </div>
           <dl className="mt-12 grid max-w-md grid-cols-3 gap-6">
@@ -144,7 +148,7 @@ function Index() {
       </section>
 
     </div>
-    </Shell>
+    </Shell></Localized>
   );
 }
 
@@ -153,7 +157,7 @@ function Phone() {
   const [frozen, setFrozen] = useState(false);
   const m = (v: string) => (show ? v : "••••");
   return (
-    <div className="relative mx-auto w-full max-w-[340px]">
+    <Localized><div className="relative mx-auto w-full max-w-[340px]">
       <div className="absolute -inset-10 rounded-full bg-glow blur-3xl" />
       <div className="relative rounded-[3rem] border-8 border-secondary bg-background ring-1 ring-primary/40 p-5 shadow-glow">
         <div className="mx-auto mb-4 h-5 w-24 rounded-full bg-secondary" />
@@ -183,7 +187,7 @@ function Phone() {
           {[40, 65, 30, 80, 55, 45, 70].map((h, i) => <div key={i} className="flex-1 rounded-t-md bg-highlight/50" style={{ height: `${h}%` }} />)}
         </div>
       </div>
-    </div>
+    </div></Localized>
   );
 }
 
@@ -198,7 +202,7 @@ function Converter() {
     </select>
   );
   return (
-    <section className="relative z-10 mx-auto max-w-6xl px-5">
+    <Localized><section className="relative z-10 mx-auto max-w-6xl px-5">
       <div className="glass grid gap-10 rounded-[2rem] p-8 md:grid-cols-2 md:p-12">
         <div>
           <p className="text-sm font-semibold uppercase tracking-widest text-accent">Currency conversion</p>
@@ -219,6 +223,6 @@ function Converter() {
           <p className="text-xs text-muted-foreground">1 {from} = {(RATES[to]!.rate / RATES[from]!.rate).toFixed(4)} {to} · indicative rate</p>
         </div>
       </div>
-    </section>
+    </section></Localized>
   );
 }

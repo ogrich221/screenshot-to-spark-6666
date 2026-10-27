@@ -1,5 +1,12 @@
+import { Localized } from '@/components/localized';
 import { Link } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCustomerAuth } from '@/components/customer-auth';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import { LocaleProvider, useLocale } from '@/lib/locale';
 
 export const LANGS = {
   en: { label: "EN", full: "English", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
@@ -10,14 +17,12 @@ export const LANGS = {
 } as const;
 export type Lang = keyof typeof LANGS;
 
-const LangCtx = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({ lang: "en", setLang: () => {} });
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("en");
-  return <LangCtx.Provider value={{ lang, setLang }}>{children}</LangCtx.Provider>;
+  return <LocaleProvider>{children}</LocaleProvider>;
 }
 export const useT = () => {
-  const { lang, setLang } = useContext(LangCtx);
-  return { t: LANGS[lang], lang, setLang };
+  const { lang, setLang } = useLocale();
+  return { t: LANGS.en, lang, setLang };
 };
 
 const PAGES = ["/how-it-works", "/pricing", "/savings", "/security"] as const;
@@ -45,6 +50,9 @@ const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
 
 function DashboardMenu() {
   const { t } = useT();
+  const { user } = useCustomerAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -54,7 +62,7 @@ function DashboardMenu() {
     return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); };
   }, []);
   return (
-    <div ref={ref} className="relative">
+    <Localized><div ref={ref} className="relative">
       <button onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="true" aria-label={t.dash}
         className="grid h-11 w-11 place-items-center rounded-full bg-gold shadow-glow">
         <span aria-hidden className="flex flex-col gap-1">{[0, 1, 2, 3].map((i) => <span key={i} className="block h-0.5 w-5 rounded bg-primary-foreground" />)}</span>
@@ -74,17 +82,19 @@ function DashboardMenu() {
               </nav>
             </div>
           ))}
-          <a href="#open" onClick={() => setOpen(false)} className="mt-1 flex h-12 items-center justify-center rounded-2xl bg-gold text-sm font-semibold text-primary-foreground">{t.cta}</a>
+          {user && <><Button asChild variant="outline" className="mb-2 h-12 w-full"><Link to="/dashboard" onClick={() => setOpen(false)}>My account</Link></Button><Button variant="ghost" className="mb-2 w-full" onClick={async () => { await queryClient.cancelQueries(); queryClient.clear(); await supabase.auth.signOut(); setOpen(false); await navigate({ to: '/auth', replace: true }); }}>Sign out</Button></>}
+          <Button asChild className="mt-1 h-12 w-full bg-gold"><Link to="/open-account" onClick={() => setOpen(false)}>{t.cta}</Link></Button>
+          {!user && <Button asChild variant="link" className="mt-2 w-full"><Link to="/auth" onClick={() => setOpen(false)}>Customer sign-in</Link></Button>}
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }
 
 export function Header() {
   const { t, lang, setLang } = useT();
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/70 backdrop-blur-xl">
+    <Localized><header className="sticky top-0 z-40 border-b border-border bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
         <div className="flex items-center gap-3">
           <label className="sr-only" htmlFor="lang">Language</label>
@@ -102,13 +112,13 @@ export function Header() {
         </nav>
         <DashboardMenu />
       </div>
-    </header>
+    </header></Localized>
   );
 }
 
 export function PageHero({ eyebrow, title, sub }: { eyebrow: string; title: string; sub: string }) {
   return (
-    <section className="relative">
+    <Localized><section className="relative">
       <div className="pointer-events-none absolute inset-0 bg-light" />
       <div className="pointer-events-none absolute inset-0 rays" />
       <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-20 md:pt-28">
@@ -116,27 +126,27 @@ export function PageHero({ eyebrow, title, sub }: { eyebrow: string; title: stri
         <h1 className="mt-4 max-w-3xl text-5xl font-bold leading-[1.05] md:text-6xl">{title}</h1>
         <p className="mt-5 max-w-xl text-lg text-muted-foreground">{sub}</p>
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
 export function CTA() {
   const { t } = useT();
   return (
-    <section id="open" className="mx-auto max-w-6xl px-5 py-24">
+    <Localized><section id="open" className="mx-auto max-w-6xl px-5 py-24">
       <div className="relative overflow-hidden rounded-[2rem] border border-border p-10 text-center md:p-16">
         <div className="pointer-events-none absolute inset-0 bg-light" />
         <h2 className="relative text-4xl font-bold md:text-6xl">Bring your money <span className="text-gold">into the light.</span></h2>
         <p className="relative mx-auto mt-4 max-w-md text-muted-foreground">Open an account in about five minutes. No paperwork, no minimum balance.</p>
-        <a href="#" className="relative mt-8 inline-flex h-14 items-center rounded-full bg-gold px-10 font-semibold text-primary-foreground shadow-glow">{t.cta}</a>
+        <Button asChild className="relative mt-8 h-14 rounded-full bg-gold px-10 font-semibold shadow-glow"><Link to="/open-account">{t.cta}</Link></Button>
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
 export function Footer() {
   return (
-    <footer className="border-t border-border">
+    <Localized><footer className="border-t border-border">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 md:grid-cols-5">
         <div>
           <p className="font-display text-lg font-bold tracking-wider text-gold">LUMEN</p>
@@ -160,17 +170,17 @@ export function Footer() {
         <p>© 2026 Lumen Bank. All rights reserved.</p>
         <div className="flex gap-5">{["Instagram", "LinkedIn", "X", "YouTube"].map((s) => <a key={s} href="#" className="hover:text-primary">{s}</a>)}</div>
       </div>
-    </footer>
+    </footer></Localized>
   );
 }
 
 export function Shell({ children }: { children: ReactNode }) {
-  return (<><Header /><main>{children}</main><CTA /><Footer /></>);
+  return (<Localized><><Header /><main>{children}</main><CTA /><Footer /></></Localized>);
 }
 
 export function FAQ({ items }: { items: [string, string][] }) {
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-24">
+    <Localized><section className="mx-auto max-w-3xl px-5 pt-24">
       <h2 className="text-3xl font-bold">Frequently asked questions</h2>
       <div className="mt-8 divide-y divide-border border-y border-border">
         {items.map(([q, a]) => (
@@ -182,25 +192,25 @@ export function FAQ({ items }: { items: [string, string][] }) {
           </details>
         ))}
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
 export function Stats({ items }: { items: [string, string][] }) {
   return (
-    <section className="mx-auto max-w-6xl px-5 pt-24">
+    <Localized><section className="mx-auto max-w-6xl px-5 pt-24">
       <dl className="grid grid-cols-2 gap-6 rounded-3xl border border-border p-8 md:grid-cols-4">
         {items.map(([v, l]) => (
           <div key={l}><dt className="font-display text-3xl font-bold text-gold">{v}</dt><dd className="mt-1 text-sm text-muted-foreground">{l}</dd></div>
         ))}
       </dl>
-    </section>
+    </section></Localized>
   );
 }
 
 export function Features({ title, items }: { title?: string; items: [string, string][] }) {
   return (
-    <section className="mx-auto max-w-6xl px-5 pt-4">
+    <Localized><section className="mx-auto max-w-6xl px-5 pt-4">
       {title && <h2 className="mb-10 text-3xl font-bold md:text-4xl">{title}</h2>}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {items.map(([h, p]) => (
@@ -211,6 +221,6 @@ export function Features({ title, items }: { title?: string; items: [string, str
           </div>
         ))}
       </div>
-    </section>
+    </section></Localized>
   );
 }
