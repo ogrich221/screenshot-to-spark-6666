@@ -148,7 +148,7 @@ function AdminShell({ email }: { email: string }) {
             <button onClick={() => window.history.back()} aria-label="Go back" className="grid h-11 w-11 place-items-center rounded-full border border-border lg:hidden"><ArrowLeft className="h-5 w-5" /></button>
           )}
           <p className="truncate font-semibold lg:hidden">{current.label}</p>
-          <form className="relative hidden flex-1 md:block md:max-w-md" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/admin/customers", search: { q, status: "All" } }); }}>
+          <form className="relative hidden flex-1 md:block md:max-w-md" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/admin/users" }); }}>
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <label htmlFor="gsearch" className="sr-only">Search customers</label>
             <input id="gsearch" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search customers, accounts, cases…"
