@@ -58,6 +58,50 @@ export type Database = {
           },
         ]
       }
+      customer_cards: {
+        Row: {
+          card_type: string
+          cardholder_name: string
+          credit_limit: number
+          expires: string
+          id: string
+          issued_at: string
+          last4: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          card_type: string
+          cardholder_name: string
+          credit_limit?: number
+          expires: string
+          id?: string
+          issued_at?: string
+          last4: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          card_type?: string
+          cardholder_name?: string
+          credit_limit?: number
+          expires?: string
+          id?: string
+          issued_at?: string
+          last4?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_cards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_security: {
         Row: {
           answer_hashes: string[]
