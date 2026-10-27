@@ -11,3 +11,6 @@
 
 - Admin workspace lives under /admin (src/routes/admin*.tsx) with its own layout; it uses sample data from src/lib/admin-data.ts until a real backend is added, because no database is connected yet.
 - Public pages share header/footer via Shell in src/components/site.tsx so navigation stays consistent.
+- Customer onboarding uses Cloud Auth and owner-scoped profiles; store only non-secret draft fields so PINs and security answers never enter browser storage.
+- Customer accounts are application records, not live financial accounts; balances remain zero until a regulated banking integration is connected.
+- Hash onboarding secrets in authenticated server functions and keep their table unreadable to customers; account creation is idempotent.
