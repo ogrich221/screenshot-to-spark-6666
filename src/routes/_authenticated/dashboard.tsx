@@ -1,6 +1,7 @@
 import { Localized } from '@/components/localized';
 import { BackLink } from '@/components/back-link';
 import { TransferPreview } from '@/components/transfer-preview';
+import { CustomerCards, UtilityBills } from '@/components/profile-payments';
 import { createFileRoute, Link, useNavigate, redirect } from '@tanstack/react-router';
 import { checkAdmin } from '@/lib/admin-users.functions';
 import { queryOptions, useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,7 +14,6 @@ import { readCustomer } from '@/lib/onboarding.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/components/site';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const customerQuery = queryOptions({ queryKey: ['customer-account'], queryFn: () => readCustomer() });
 export const Route = createFileRoute('/_authenticated/dashboard')({ beforeLoad: async () => { const r = await checkAdmin().catch(() => ({ isAdmin: false })); if (r.isAdmin) throw redirect({ to: '/admin', replace: true }); }, loader: ({ context }) => context.queryClient.ensureQueryData(customerQuery), head: () => ({ meta: [{ title: 'My account — LUMEN BANK' }, { name: 'description', content: 'Your LUMEN customer profile, balances and security overview.' }, { property: 'og:title', content: 'My account — LUMEN BANK' }, { property: 'og:description', content: 'Your private customer account overview.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }, { name: 'robots', content: 'noindex' }] }), component: Page });
@@ -25,7 +25,6 @@ function Page() {
   const { lang, setLang } = useT();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const [deposit, setDeposit] = useState(false);
   const [show, setShow] = useState(false);
   const [menu, setMenu] = useState(false);
   const avatar = useAvatar();
@@ -39,7 +38,7 @@ function Page() {
   const hour = new Date().getHours();
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
-  return <Localized><>
+  return <Localized><div className="profile-theme min-h-dvh bg-background text-foreground">
     <header className="sticky top-0 z-40 border-b border-border bg-sidebar/90 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
         <div className="flex min-w-0 items-center gap-3">
@@ -57,7 +56,7 @@ function Page() {
       </div>
     </header>
     <Sheet open={menu} onOpenChange={setMenu}>
-      <SheetContent side="left" className="w-[88vw] overflow-y-auto sm:max-w-md">
+      <SheetContent side="left" className="profile-theme w-[88vw] overflow-y-auto sm:max-w-md">
         <SheetHeader><div className="flex items-center gap-2"><Button variant="ghost" size="icon" onClick={() => setMenu(false)} aria-label="Back to my account" title="Back to my account"><ArrowLeft /></Button><SheetTitle>My profile</SheetTitle></div></SheetHeader>
         <div className="mt-6 space-y-6 px-1 pb-8">
           <AvatarEditor avatar={avatar} initials={initials} />
@@ -81,7 +80,7 @@ function Page() {
     </Sheet>
     <main className="mx-auto max-w-6xl px-5 py-6">
       <div className="mb-4"><BackLink home /></div>
-      <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center">
+      <section className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-center">
         <AvatarImage url={avatar.url} initials={initials} className="size-16 text-xl" />
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{greet},</p>
@@ -91,9 +90,9 @@ function Page() {
         <span className="inline-flex w-fit items-center gap-1 rounded-full border border-border px-3 py-1 text-xs text-primary"><ShieldCheck className="size-4" />{data.account ? 'Member' : 'Application in progress'}</span>
       </section>
 
-      {!data.account ? <div className="mt-8 rounded-2xl border border-border p-8"><h2 className="text-xl font-semibold">Your next step is waiting.</h2><p className="mt-3 text-muted-foreground">Finish your saved application to open your LUMEN account.</p><Button asChild className="mt-6 h-12"><Link to="/open-account">Continue application<ArrowUpRight /></Link></Button></div> :
+      {!data.account ? <div className="mt-8 border-b border-border py-8"><h2 className="text-xl font-semibold">Your next step is waiting.</h2><p className="mt-3 text-muted-foreground">Finish your saved application to open your LUMEN account.</p><Button asChild className="mt-6 h-12"><Link to="/open-account">Continue application<ArrowUpRight /></Link></Button></div> :
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 lg:col-span-2">
+          <div className="py-2 lg:col-span-2">
             <div className="flex items-center justify-between gap-3">
               <span className="flex gap-2 font-semibold"><Wallet className="size-5 text-primary" />LUMEN account</span>
               <div className="flex items-center gap-3"><span className="flex gap-1 text-xs text-success"><CheckCircle2 className="size-4" />{data.account.status}</span>
@@ -102,10 +101,9 @@ function Page() {
             <dl className="mt-8">
               <div><dt className="text-sm text-muted-foreground">Available balance</dt><dd className="mt-2 text-3xl font-semibold text-primary">{money(data.account.available_balance)}</dd></div>
             </dl>
-            <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">Application account · Banking services not connected</p>
-            <div className="mt-5 flex flex-wrap gap-3"><TransferPreview availableBalance={data.account.available_balance} /><TransferPreview availableBalance={data.account.available_balance} international /><Button variant="outline" className="h-12" onClick={() => setDeposit(true)}>Add money<ArrowUpRight /></Button></div>
+            <div className="mt-6 flex flex-wrap gap-3 border-t border-border pt-5"><TransferPreview availableBalance={data.account.available_balance} /><TransferPreview availableBalance={data.account.available_balance} international /></div>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="border-t border-border pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-2">
             <h2 className="font-semibold">Quick links</h2>
             <ul className="mt-4 space-y-2 text-sm">
               {([['/cards', CreditCard, 'Cards'], ['/savings', PiggyBank, 'Savings & Goals'], ['/security', ShieldCheck, 'Security Centre'], ['/support', LifeBuoy, 'Help & Support']] as const).map(([to, Icon, l]) =>
@@ -114,11 +112,11 @@ function Page() {
           </div>
         </div>}
 
-      {data.account && <section className="mt-6 rounded-2xl border border-border bg-card p-6"><h2 className="flex items-center gap-2 font-semibold"><Clock className="size-5 text-primary" />Recent activity</h2><p className="mt-4 text-sm text-muted-foreground">Your account is open. No transactions yet.</p></section>}
-
-      <Dialog open={deposit} onOpenChange={setDeposit}><DialogContent><DialogHeader><DialogTitle>Add money</DialogTitle><DialogDescription>Deposits will be available once banking services and identity verification are connected. No money can be added yet.</DialogDescription></DialogHeader><Button onClick={() => setDeposit(false)}>Got it</Button></DialogContent></Dialog>
+      <CustomerCards name={name} email={data.email} />
+      {data.account && <UtilityBills availableBalance={data.account.available_balance} />}
+      {data.account && <section className="mt-8 border-t border-border py-7"><h2 className="flex items-center gap-2 font-semibold"><Clock className="size-5 text-primary" />Recent activity</h2><p className="mt-4 text-sm text-muted-foreground">Your account is open. No transactions yet.</p></section>}
     </main>
-  </></Localized>;
+  </div></Localized>;
 }
 
 function ProfileGroup({ icon: Icon, title, rows, action }: { icon: LucideIcon; title: string; rows: [string, string][]; action?: ReactNode }) {

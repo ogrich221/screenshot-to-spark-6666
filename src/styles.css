@@ -132,3 +132,17 @@
 @utility shadow-glow { box-shadow: var(--shadow-glow); }
 @utility rays { background: repeating-conic-gradient(from 200deg at 75% -10%, oklch(0.8 0.13 85 / 0.08) 0deg 4deg, transparent 4deg 12deg); mask-image: radial-gradient(ellipse at 75% 0%, black, transparent 65%); }
 @utility text-gold { background-image: var(--gradient-gold); background-clip: text; color: transparent; }
+
+.profile-theme {
+  --background: oklch(0.19 0.008 160);
+  --card: oklch(0.235 0.009 160);
+  --secondary: oklch(0.28 0.012 160);
+  --sidebar: oklch(0.17 0.008 160);
+  --primary: oklch(0.83 0.095 88);
+  --primary-foreground: oklch(0.18 0.008 160);
+  --muted-foreground: oklch(0.75 0.018 90);
+  --border: oklch(0.83 0.05 88 / 0.2);
+  --input: oklch(0.83 0.05 88 / 0.3);
+  --popover: oklch(0.235 0.009 160);
+  --gradient-gold: linear-gradient(115deg, oklch(0.88 0.075 90), oklch(0.72 0.1 80));
+}
