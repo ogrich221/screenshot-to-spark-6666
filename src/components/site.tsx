@@ -22,7 +22,7 @@ export const useT = () => {
 
 const PAGES = ["/how-it-works", "/pricing", "/savings", "/security"] as const;
 
-type MenuTo = "/" | (typeof PAGES)[number] | "/cards" | "/transfers" | "/business" | "/loans" | "/support";
+type MenuTo = "/" | (typeof PAGES)[number] | "/cards" | "/transfers" | "/business" | "/loans" | "/support" | "/admin";
 const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
   { group: "Banking", items: [
     ["/", "Home", "Overview", "⌂"],
@@ -39,6 +39,7 @@ const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
   { group: "Help", items: [
     ["/security", "Security Centre", "How we protect you", "◈"],
     ["/support", "Help & Support", "Real people, 24/7", "?"],
+    ["/admin", "Staff admin", "Operations workspace", "⚙"],
   ] },
 ];
 
