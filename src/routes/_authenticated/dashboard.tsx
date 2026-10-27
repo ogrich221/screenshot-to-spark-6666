@@ -3,7 +3,10 @@ import { TransferPreview } from '@/components/transfer-preview';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { queryOptions, useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Wallet, ShieldCheck, ArrowUpRight, CheckCircle2, Eye, EyeOff, LogOut, Home, Mail, Phone, MapPin, User, CreditCard, LifeBuoy, PiggyBank, Clock } from 'lucide-react';
+import { Wallet, ShieldCheck, ArrowUpRight, CheckCircle2, Eye, EyeOff, LogOut, Home, Mail, Phone, MapPin, User, CreditCard, LifeBuoy, PiggyBank, Clock, Menu, Receipt, Landmark, HandCoins, type LucideIcon } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { AvatarEditor, AvatarImage, useAvatar } from '@/components/profile-avatar';
+import type { ReactNode } from 'react';
 import { readCustomer } from '@/lib/onboarding.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/components/site';
@@ -22,6 +25,8 @@ function Page() {
   const navigate = useNavigate();
   const [deposit, setDeposit] = useState(false);
   const [show, setShow] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const avatar = useAvatar();
   const d = data.profile?.details;
   const first = str(d, 'firstName'), last = str(d, 'lastName');
   const name = [first, last].filter(Boolean).join(' ') || 'LUMEN customer';
@@ -122,4 +127,12 @@ function Page() {
       <Dialog open={deposit} onOpenChange={setDeposit}><DialogContent><DialogHeader><DialogTitle>Add money</DialogTitle><DialogDescription>Deposits will be available once banking services and identity verification are connected. No money can be added yet.</DialogDescription></DialogHeader><Button onClick={() => setDeposit(false)}>Got it</Button></DialogContent></Dialog>
     </main>
   </></Localized>;
+}
+
+function ProfileGroup({ icon: Icon, title, rows, action }: { icon: LucideIcon; title: string; rows: [string, string][]; action?: ReactNode }) {
+  return <section className="rounded-xl border border-border bg-card p-4">
+    <h3 className="flex items-center gap-2 text-sm font-semibold"><Icon className="size-4 text-primary" />{title}</h3>
+    <dl className="mt-3 space-y-2 text-sm">{rows.map(([l, v]) => <div key={l} className="flex justify-between gap-4"><dt className="text-muted-foreground">{l}</dt><dd className="break-words text-right font-medium" data-no-translate>{v}</dd></div>)}</dl>
+    {action && <div className="mt-3">{action}</div>}
+  </section>;
 }
