@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Shell, useT } from "@/components/site";
 import building from "@/assets/bank-building.jpg";
+import staffDesk from "@/assets/staff-desk.jpg";
+import manager from "@/assets/branch-manager.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -98,6 +100,28 @@ function Index() {
       </section>
 
       <Converter />
+
+      {/* People */}
+      <section className="relative z-10 mx-auto max-w-6xl px-5 py-28">
+        <p className="text-sm font-semibold uppercase tracking-widest text-primary">Real people, real branches</p>
+        <h2 className="mt-3 max-w-2xl text-4xl font-bold md:text-5xl">Digital first. <span className="text-gold">Never faceless.</span></h2>
+        <div className="mt-14 grid gap-6 md:grid-cols-5">
+          <figure className="relative overflow-hidden rounded-[2rem] border border-border md:col-span-3">
+            <img src={staffDesk} alt="Lumen Bank advisor processing a customer payment at the branch desk" loading="lazy" width={1264} height={848} className="h-full w-full object-cover" />
+            <figcaption className="absolute inset-x-4 bottom-4 rounded-2xl border border-border bg-background/80 p-5 backdrop-blur-xl">
+              <p className="font-semibold">Payments handled in minutes</p>
+              <p className="mt-1 text-sm text-muted-foreground">Our advisors process deposits, transfers and bills while you watch every step.</p>
+            </figcaption>
+          </figure>
+          <figure className="relative overflow-hidden rounded-[2rem] border border-border md:col-span-2">
+            <img src={manager} alt="Lumen Bank branch manager welcoming customers" loading="lazy" width={1024} height={1024} className="h-full w-full object-cover" />
+            <figcaption className="absolute inset-x-4 bottom-4 rounded-2xl border border-border bg-background/80 p-5 backdrop-blur-xl">
+              <p className="font-semibold">A manager who knows your name</p>
+              <p className="mt-1 text-sm text-muted-foreground">Walk in, sit down, and get honest advice from someone on your side.</p>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
 
       {/* Testimonials */}
       <section className="relative z-10 bg-secondary/40 py-28">
