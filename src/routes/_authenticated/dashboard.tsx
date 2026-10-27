@@ -136,8 +136,8 @@ function RecentActivity({ show }: { show: boolean }) {
   return <section className="mt-8 border-t border-border py-7"><h2 className="flex items-center gap-2 font-semibold"><Clock className="size-5 text-primary" />Recent activity</h2>
     {!tx.data?.length ? <p className="mt-4 text-sm text-muted-foreground">Your account is open. No transactions yet.</p>
       : <ul className="mt-4 divide-y divide-border">{tx.data.map(t => <li key={t.id} className="flex items-center justify-between gap-4 py-3 text-sm">
-          <div className="min-w-0"><p className="truncate font-medium" data-no-translate>{t.narration}</p><p className="text-xs text-muted-foreground">{t.kind === 'credit' ? 'Credit' : 'Debit'} · {new Date(t.createdAt).toLocaleString()}</p></div>
-          <div className="shrink-0 text-right"><p className={`font-semibold ${t.kind === 'credit' ? 'text-success' : 'text-destructive'}`}>{t.kind === 'credit' ? '+' : '−'}{fmt(t.amount)}</p><p className="text-xs text-muted-foreground">Balance {fmt(t.balanceAfter)}</p></div>
+          <div className="min-w-0"><p className="truncate font-medium" data-no-translate>{t.narration}</p><p className="text-xs text-muted-foreground">{t.kind === 'credit' ? 'Credit' : 'Debit'} · {new Date(t.createdAt).toLocaleString()} · <span className={t.status === 'pending' ? 'text-warning' : t.status === 'declined' ? 'text-destructive' : 'text-success'}>{t.status === 'pending' ? 'Pending approval' : t.status === 'declined' ? 'Declined' : 'Completed'}</span></p>{t.reviewNote && <p className="text-xs text-muted-foreground" data-no-translate>{t.reviewNote}</p>}</div>
+          <div className="shrink-0 text-right"><p className={`font-semibold ${t.status === 'declined' ? 'text-muted-foreground line-through' : t.kind === 'credit' ? 'text-success' : 'text-destructive'}`}>{t.kind === 'credit' ? '+' : '−'}{fmt(t.amount)}</p>{t.balanceAfter != null && <p className="text-xs text-muted-foreground">Balance {fmt(t.balanceAfter)}</p>}</div>
         </li>)}</ul>}
   </section>;
 }
