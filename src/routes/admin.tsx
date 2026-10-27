@@ -138,7 +138,7 @@ function AdminLayout() {
               <button onClick={() => { setProfile(!profile); setBell(false); }} aria-label="Profile menu" aria-expanded={profile} className="grid h-11 w-11 place-items-center rounded-full bg-gold font-semibold text-primary-foreground">AR</button>
               {profile && (
                 <div className="absolute right-0 top-14 z-50 w-56 rounded-3xl border border-border bg-popover p-2 shadow-soft">
-                  <div className="px-3 py-2"><p className="font-semibold">Alex Rivera</p><p className="text-xs text-muted-foreground">Operations lead</p></div>
+                  <div className="px-3 py-2"><p className="font-semibold">Alex Rivera</p><p className="text-xs text-muted-foreground">Administrator</p></div>
                   <Link to="/admin/settings" onClick={() => setProfile(false)} className="block rounded-2xl px-3 py-2.5 text-sm hover:bg-secondary">Settings</Link>
                   <Link to="/" className="block rounded-2xl px-3 py-2.5 text-sm hover:bg-secondary">Sign out</Link>
                 </div>

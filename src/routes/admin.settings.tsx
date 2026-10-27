@@ -16,8 +16,8 @@ function Page() {
       <PageHeader crumbs={[{ label: "Dashboard", to: "/admin" }, { label: "Settings" }]} back={{ label: "Back to dashboard", to: "/admin" }} title="Settings" sub="Your profile, security and notifications." />
       <div className="grid gap-6 lg:grid-cols-3">
         <Panel title="Profile">
-          <div className="flex items-center gap-4"><span className="grid h-14 w-14 place-items-center rounded-full bg-gold text-lg font-semibold text-primary-foreground">AR</span><div><p className="font-semibold">Alex Rivera</p><p className="text-sm text-muted-foreground">Operations lead · alex.rivera@lumenbank.com</p></div></div>
-          <p className="mt-4 text-sm text-muted-foreground">Role permissions: customers, accounts, cards, cases, compliance review.</p>
+          <div className="flex items-center gap-4"><span className="grid h-14 w-14 place-items-center rounded-full bg-gold text-lg font-semibold text-primary-foreground">AR</span><div><p className="font-semibold">Alex Rivera</p><p className="text-sm text-muted-foreground">Administrator · alex.rivera@lumenbank.com</p></div></div>
+          <p className="mt-4 text-sm text-muted-foreground">Sole administrator with full access to every area of the workspace.</p>
         </Panel>
         <Panel title="Security & notifications" className="lg:col-span-2">
           <ul className="divide-y divide-border">
