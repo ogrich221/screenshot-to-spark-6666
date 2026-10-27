@@ -196,3 +196,20 @@ export function Stats({ items }: { items: [string, string][] }) {
     </section>
   );
 }
+
+export function Features({ title, items }: { title?: string; items: [string, string][] }) {
+  return (
+    <section className="mx-auto max-w-6xl px-5 pt-4">
+      {title && <h2 className="mb-10 text-3xl font-bold md:text-4xl">{title}</h2>}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map(([h, p]) => (
+          <div key={h} className="glass rounded-3xl p-8">
+            <span aria-hidden className="block h-1 w-10 rounded-full bg-gold" />
+            <h3 className="mt-5 text-xl font-semibold">{h}</h3>
+            <p className="mt-2 text-muted-foreground">{p}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
