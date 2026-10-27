@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793100296388,
+      "tag": "0000_customer_onboarding",
+      "breakpoints": true
+    }
+  ]
 }
