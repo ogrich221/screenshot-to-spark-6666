@@ -40,14 +40,14 @@ function Index() {
   return (
     <Shell>
     <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] md:h-[900px]">
-        <img src={building} alt="Lumen Bank headquarters at dusk" width={1920} height={1088} className="h-full w-full object-cover object-[47%_28%] opacity-75 md:object-center" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
+      <div className="pointer-events-none absolute inset-x-0 top-0">
+        <img src={building} alt="Lumen Bank headquarters at dusk" width={1920} height={1088} className="h-auto w-full opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
       </div>
 
       {/* Hero */}
-      <section className="relative z-10 mx-auto grid max-w-6xl items-center gap-14 px-5 pb-24 pt-14 md:grid-cols-2 md:pt-28">
+      <section className="relative z-10 mx-auto grid max-w-6xl items-center gap-14 px-5 pb-24 pt-[52vw] md:grid-cols-2 md:pt-[22vw]">
         <div>
           <span className="glass inline-flex rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Transparent by design</span>
           <h1 className="mt-6 text-5xl font-bold leading-[1.02] md:text-7xl text-gold">{t.h}</h1>
