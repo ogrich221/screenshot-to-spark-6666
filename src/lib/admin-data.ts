@@ -62,7 +62,7 @@ export const cases = [
 ];
 
 export const alerts = [
-  { id: "AL-77", level: "Urgent", title: "Unusual international transfer", detail: "Kenji Watanabe · ¥0 to a new payee from a new device", customer: "c-1005", time: "08:31" },
+  { id: "AL-77", level: "Urgent", title: "Unusual international transfer", detail: "Kenji Watanabe · ¥0.00 to a new payee from a new device", customer: "c-1005", time: "08:31" },
   { id: "AL-76", level: "Urgent", title: "Large incoming wire needs source-of-funds check", detail: "Arjun Mehta · ₹0.00 from Mehta Exports", customer: "c-1007", time: "Yesterday" },
   { id: "AL-74", level: "Needs attention", title: "ID document expires in 14 days", detail: "Daniel Kowalski · passport", customer: "c-1002", time: "Yesterday" },
   { id: "AL-71", level: "Needs attention", title: "Business verification incomplete", detail: "Arjun Mehta · missing registration certificate", customer: "c-1007", time: "2 days ago" },
@@ -79,4 +79,4 @@ export const activity = [
 
 export const customerById = (id: string) => customers.find((c) => c.id === id);
 export const money = (n: number, c: string) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: c, maximumFractionDigits: c === "JPY" ? 0 : 2 }).format(n);
+  new Intl.NumberFormat("en-US", { style: "currency", currency: c, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
