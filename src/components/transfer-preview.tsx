@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Download, Globe, Info, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Download, Globe, Landmark, Info, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,7 +10,7 @@ import { transferPreview } from '@/lib/transfer-preview';
 
 const money = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
-export function TransferPreview({ availableBalance, international = false }: { availableBalance: number; international?: boolean }) {
+export function TransferPreview({ availableBalance, international = false, domestic = false }: { availableBalance: number; international?: boolean; domestic?: boolean }) {
   const { lang } = useLocale();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'details' | 'review' | 'summary'>('details');
@@ -26,7 +26,7 @@ export function TransferPreview({ availableBalance, international = false }: { a
 
   function review(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (recipient.trim() && preview.valid && preview.withinLimit && (!international || (bank.trim() && bankAddress.trim() && country.trim() && account.trim() && swift.trim()))) setStep('review');
+    if (recipient.trim() && preview.valid && preview.withinLimit && (!domestic || (bank.trim() && account.trim() && /^\d{9}$/.test(swift))) && (!international || (bank.trim() && bankAddress.trim() && country.trim() && account.trim() && swift.trim()))) setStep('review');
   }
 
   function download() {
@@ -39,6 +39,7 @@ export function TransferPreview({ availableBalance, international = false }: { a
       `${t('Reference or note')}: ${reference.trim() || '—'}`,
       `${t('Fees and delivery time')}: ${t('Not quoted in this preview.')}`,
       ...(international ? [`${t('International wire transfer')}: USD`, `${t('Bank name')}: ${bank.trim()}`, `${t('Recipient bank address')}: ${bankAddress.trim()}`, `${t('Bank country')}: ${country.trim()}`, `${t('IBAN or account number')}: ${account.trim()}`, `${t('SWIFT / BIC')}: ${swift.trim()}`] : []),
+      ...(domestic ? [`${t('Domestic transfer')}: USD`, `${t('Bank name')}: ${bank.trim()}`, `${t('Routing number')}: ${swift}`, `${t('Account number')}: ${account.trim()}`] : []),
     ].join('\n');
     const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
     const link = document.createElement('a');
@@ -49,11 +50,11 @@ export function TransferPreview({ availableBalance, international = false }: { a
   }
 
   return <Localized><>
-    <Button variant={international ? 'outline' : 'default'} className="h-12 whitespace-normal" onClick={() => { setStep('details'); setRecipient(''); setAmount(''); setReference(''); setBank(''); setBankAddress(''); setCountry(''); setAccount(''); setSwift(''); setOpen(true); }}>{international ? <><Globe />International wire transfer</> : <>Send money<ArrowUpRight /></>}</Button>
+    <Button variant={international ? 'outline' : 'default'} className="h-12 whitespace-normal" onClick={() => { setStep('details'); setRecipient(''); setAmount(''); setReference(''); setBank(''); setBankAddress(''); setCountry(''); setAccount(''); setSwift(''); setOpen(true); }}>{international ? <><Globe />International wire transfer</> : domestic ? <><Landmark />Domestic transfer</> : <>Send money<ArrowUpRight /></>}</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-lg sm:max-w-lg">
         <DialogHeader>
-          <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" title="Back" onClick={() => step === 'details' ? setOpen(false) : setStep(step === 'summary' ? 'review' : 'details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? international ? 'International wire transfer' : 'Plan a transfer' : step === 'review' ? 'Review transfer' : 'Transfer preview summary'}</DialogTitle></div>
+          <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" title="Back" onClick={() => step === 'details' ? setOpen(false) : setStep(step === 'summary' ? 'review' : 'details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? international ? 'International wire transfer' : domestic ? 'Domestic transfer' : 'Plan a transfer' : step === 'review' ? 'Review transfer' : 'Transfer preview summary'}</DialogTitle></div>
           <DialogDescription>Preview only. No money is sent.</DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-2 border-b border-border pb-4 text-xs text-muted-foreground" aria-label="Transfer progress">
@@ -72,6 +73,13 @@ export function TransferPreview({ availableBalance, international = false }: { a
             <label className="block text-sm font-medium" htmlFor="wire-swift">SWIFT / BIC<Input id="wire-swift" className="mt-2 h-12" required maxLength={11} value={swift} onChange={event => setSwift(event.target.value.toUpperCase())} /></label>
             <p className="text-xs text-muted-foreground">USD preview only. Bank details, exchange rates and intermediary fees are not verified.</p>
           </fieldset>}
+          {domestic && <fieldset className="space-y-4 border-y border-border py-4">
+            <legend className="text-sm font-semibold">Recipient bank details</legend>
+            <label className="block text-sm font-medium" htmlFor="dom-bank">Bank name<Input id="dom-bank" className="mt-2 h-12" required maxLength={120} value={bank} onChange={event => setBank(event.target.value)} /></label>
+            <label className="block text-sm font-medium" htmlFor="dom-routing">Routing number<Input id="dom-routing" className="mt-2 h-12" required inputMode="numeric" maxLength={9} value={swift} onChange={event => setSwift(event.target.value.replace(/\D/g, ''))} /></label>
+            <label className="block text-sm font-medium" htmlFor="dom-account">Account number<Input id="dom-account" className="mt-2 h-12" required inputMode="numeric" maxLength={17} value={account} onChange={event => setAccount(event.target.value.replace(/\D/g, ''))} /></label>
+            <p className="text-xs text-muted-foreground">Routing numbers have 9 digits. Bank details are not verified in this preview.</p>
+          </fieldset>}
           <label className="block text-sm font-medium" htmlFor="transfer-amount">Transfer amount (USD)<Input id="transfer-amount" className="mt-2 h-12" required inputMode="decimal" placeholder="0.00" value={amount} onChange={event => setAmount(event.target.value)} aria-describedby="transfer-amount-help" aria-invalid={Boolean(amount && (!preview.valid || !preview.withinLimit))} /></label>
           <p id="transfer-amount-help" className="text-xs text-muted-foreground">You can send up to $5,000,000 a day. Terms and conditions apply.</p>
           {amount && !preview.valid && <p role="alert" className="text-sm text-destructive">Enter an amount greater than zero with up to two decimal places.</p>}
@@ -84,6 +92,7 @@ export function TransferPreview({ availableBalance, international = false }: { a
           <dl className="space-y-4 border-b border-border py-3 text-sm">
             <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Recipient</dt><dd className="max-w-[65%] break-words text-right" data-no-translate>{recipient.trim()}</dd></div>
             <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Transfer amount</dt><dd>{money(preview.amount)}</dd></div>
+            {domestic && [['Bank name', bank], ['Routing number', swift], ['Account number', account]].map(([label, value]) => <div key={label} className="flex justify-between gap-5"><dt className="text-muted-foreground">{label}</dt><dd className="max-w-[60%] break-all text-right" data-no-translate>{value}</dd></div>)}
             {international && [['Bank name', bank], ['Recipient bank address', bankAddress], ['Bank country', country], ['IBAN or account number', account], ['SWIFT / BIC', swift]].map(([label, value]) => <div key={label} className="flex justify-between gap-5"><dt className="text-muted-foreground">{label}</dt><dd className="max-w-[60%] break-all text-right" data-no-translate>{value}</dd></div>)}
             {reference.trim() && <div className="flex justify-between gap-5"><dt className="text-muted-foreground">Reference or note</dt><dd className="max-w-[65%] break-words text-right" data-no-translate>{reference.trim()}</dd></div>}
             <div><dt className="text-muted-foreground">Fees and delivery time</dt><dd className="mt-1">Not quoted in this preview.</dd></div>

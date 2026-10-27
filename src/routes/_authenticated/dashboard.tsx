@@ -101,7 +101,7 @@ function Page() {
             <dl className="mt-8">
               <div><dt className="text-sm text-muted-foreground">Available balance</dt><dd className="mt-2 text-3xl font-semibold text-primary">{money(data.account.available_balance)}</dd></div>
             </dl>
-            <div className="mt-6 flex flex-wrap gap-3 border-t border-border pt-5"><TransferPreview availableBalance={data.account.available_balance} /><TransferPreview availableBalance={data.account.available_balance} international /></div>
+            <div className="mt-6 flex flex-wrap gap-3 border-t border-border pt-5"><TransferPreview availableBalance={data.account.available_balance} domestic /><TransferPreview availableBalance={data.account.available_balance} international /></div>
           </div>
           <div className="border-t border-border pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-2">
             <h2 className="font-semibold">Quick links</h2>

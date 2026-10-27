@@ -82,3 +82,47 @@ export const deleteUser = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, error: "Could not delete the user." };
     return { ok: true as const };
   });
+
+export type IssuedCard = { id: string; userId: string; cardType: string; cardholderName: string; last4: string; expires: string; creditLimit: number; status: string; issuedAt: string };
+const toCard = (r: { id: string; user_id: string; card_type: string; cardholder_name: string; last4: string; expires: string; credit_limit: number; status: string; issued_at: string }): IssuedCard => ({ id: r.id, userId: r.user_id, cardType: r.card_type, cardholderName: r.cardholder_name, last4: r.last4, expires: r.expires, creditLimit: Number(r.credit_limit), status: r.status, issuedAt: r.issued_at });
+
+export const listIssuedCards = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context as unknown as Ctx);
+    const { data } = await context.supabase.from("customer_cards").select("*").order("issued_at", { ascending: false });
+    return (data ?? []).map(toCard);
+  });
+
+export const myCards = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.from("customer_cards").select("*").eq("user_id", context.userId).neq("status", "Cancelled").order("issued_at");
+    return (data ?? []).map(toCard);
+  });
+
+export const issueCard = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), cardType: z.enum(["Physical", "Virtual"]), cardholderName: z.string().trim().min(1).max(100), creditLimit: z.number().min(0).max(1_000_000) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as Ctx);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profile } = await supabaseAdmin.from("profiles").select("id").eq("id", data.userId).maybeSingle();
+    if (!profile) return { ok: false as const, error: "This user has no profile yet." };
+    const rnd = new Uint32Array(1); crypto.getRandomValues(rnd);
+    const now = new Date();
+    const expires = `${String(now.getUTCMonth() + 1).padStart(2, "0")}/${String((now.getUTCFullYear() + 4) % 100).padStart(2, "0")}`;
+    const { error } = await supabaseAdmin.from("customer_cards").insert({ user_id: data.userId, card_type: data.cardType, cardholder_name: data.cardholderName, last4: String((rnd[0] ?? 0) % 10000).padStart(4, "0"), expires, credit_limit: data.creditLimit });
+    if (error) return { ok: false as const, error: "Could not issue the card." };
+    return { ok: true as const };
+  });
+
+export const setCardStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), status: z.enum(["Active", "Frozen", "Cancelled"]) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as Ctx);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("customer_cards").update({ status: data.status }).eq("id", data.id);
+    return error ? { ok: false as const, error: "Could not update the card." } : { ok: true as const };
+  });
