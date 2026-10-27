@@ -19,3 +19,4 @@
 
 - Initial hydration and pending navigation share the bank-photo loading component so loading stays branded without delaying completed requests.
 - International wires use the same non-submitting transfer preview with ephemeral beneficiary bank fields; no wire details are persisted or sent.
+- Account and wire labels extend the shared static translation catalogue so new controls use the same localization boundary as existing pages.
