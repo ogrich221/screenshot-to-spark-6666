@@ -159,3 +159,13 @@ export const postTransaction = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, error: /no opened account|Insufficient/.test(error.message) ? error.message : "Could not post the transaction." };
     return { ok: true as const, balance: Number(bal) };
   });
+
+export const payBill = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ type: z.enum(["Electricity", "Water", "Gas", "Internet & phone"]), provider: z.string().trim().min(1).max(120), reference: z.string().trim().min(1).max(100), amount: z.string().regex(/^\d+(\.\d{1,2})?$/) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: res, error } = await context.supabase.rpc("customer_pay_bill", { p_type: data.type, p_provider: data.provider, p_reference: data.reference, p_amount: Number(data.amount) });
+    if (error) return { ok: false as const, error: error.message.includes("Insufficient") ? "Insufficient funds. No money was sent." : "The bill could not be paid. Please try again." };
+    const r = res as { id: string; balance: number };
+    return { ok: true as const, id: r.id, balance: Number(r.balance) };
+  });
