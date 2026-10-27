@@ -1,83 +1,74 @@
 import { Localized } from '@/components/localized';
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownRight, ArrowUpRight, Download, FolderPlus, Search, ShieldCheck } from "lucide-react";
-import { toast } from "sonner";
-import { activity, alerts } from "@/lib/admin-data";
-import { PageHeader, Panel, StatusBadge, btnGhost, btnPrimary } from "@/components/admin/ui";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { CheckCircle2, Clock, MailWarning, UserPlus, Users, UserCheck } from "lucide-react";
+import { listUsers, type AdminUser } from "@/lib/admin-users.functions";
+import { PageHeader, Panel, StatusBadge, btnPrimary, btnGhost } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/admin/")({
-  head: () => ({ meta: [{ title: "Overview — Lumen Bank Admin" }, { name: "description", content: "Daily summary of customers, accounts, reviews and alerts." }, { property: "og:title", content: "Overview — Lumen Bank Admin" }, { property: "og:description", content: "Daily summary of customers, accounts, reviews and alerts." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Overview — Lumen Bank Admin" }, { name: "description", content: "Manage Lumen Bank customer logins and applications." }, { property: "og:title", content: "Overview — Lumen Bank Admin" }, { property: "og:description", content: "Manage Lumen Bank customer logins and applications." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Overview,
 });
 
-const kpis = [
-  { label: "Total customers", value: "2,148,320", trend: "+1.8%", up: true, note: "12,410 new customers this month" },
-  { label: "Active accounts", value: "3,902,115", trend: "+0.9%", up: true, note: "Accounts used in the last 30 days" },
-  { label: "Pending reviews", value: "184", trend: "-12%", up: false, note: "Identity and document checks waiting" },
-  { label: "Transaction volume", value: "$412.6M", trend: "+4.2%", up: true, note: "Total moved today across all accounts" },
-  { label: "Support queue", value: "37", trend: "-8%", up: false, note: "Open cases, average wait 2 minutes" },
-  { label: "Urgent alerts", value: String(alerts.filter((a) => a.level === "Urgent").length), trend: "Review now", up: true, note: "Compliance items needing action today", urgent: true },
-];
+const day = 86400000;
+const fmt = (d: string | null) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Never";
 
 function Overview() {
+  const fetchUsers = useServerFn(listUsers);
+  const { data, isLoading, error } = useQuery({ queryKey: ["admin-users"], queryFn: () => fetchUsers() });
+  const users: AdminUser[] = (data ?? []).filter((u) => !u.isAdmin);
+  const now = Date.now();
+  const stats = [
+    { label: "Total customers", value: users.length, icon: Users, note: "Customer logins on Lumen" },
+    { label: "Accounts opened", value: users.filter((u) => u.accountStatus).length, icon: UserCheck, note: "Finished account opening" },
+    { label: "Applications in progress", value: users.filter((u) => u.confirmed && !u.accountStatus).length, icon: Clock, note: "Signed up, not finished yet" },
+    { label: "Unconfirmed emails", value: users.filter((u) => !u.confirmed).length, icon: MailWarning, note: "Waiting for email confirmation" },
+    { label: "New this week", value: users.filter((u) => now - new Date(u.createdAt).getTime() < 7 * day).length, icon: UserPlus, note: "Joined in the last 7 days" },
+    { label: "Active this week", value: users.filter((u) => u.lastSignIn && now - new Date(u.lastSignIn).getTime() < 7 * day).length, icon: CheckCircle2, note: "Signed in in the last 7 days" },
+  ];
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   return (
     <Localized><>
-      <PageHeader crumbs={[{ label: "Dashboard" }]} title={`${greet}, Alex`} sub="Here's what's happening across Lumen Bank today. Everything that needs you is at the top."
+      <PageHeader crumbs={[{ label: "Dashboard" }]} title={`${greet}, Administrator`} sub="Manage customer logins and account applications in one place."
         actions={<>
-          <Link to="/admin/customers" className={btnGhost}><Search className="h-4 w-4" />Find customer</Link>
-          <Link to="/admin/compliance" className={btnGhost}><ShieldCheck className="h-4 w-4" />Review alert</Link>
-          <Link to="/admin/cases" className={btnGhost}><FolderPlus className="h-4 w-4" />Create case</Link>
-          <button onClick={() => toast.success("Daily summary exported", { description: "lumen-daily-summary.csv is downloading." })} className={btnPrimary}><Download className="h-4 w-4" />Export report</button>
+          <Link to="/admin/users" className={btnGhost}><Users className="h-4 w-4" />All users</Link>
+          <Link to="/admin/users" className={btnPrimary}><UserPlus className="h-4 w-4" />Create user</Link>
         </>} />
 
+      {error && <p className="mb-4 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive">Could not load users. Refresh the page to try again.</p>}
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {kpis.map((k) => (
-          <div key={k.label} className={`glass rounded-3xl p-5 ${k.urgent ? "ring-1 ring-destructive/50" : ""}`}>
-            <p className="text-sm text-muted-foreground">{k.label}</p>
-            <div className="mt-2 flex items-baseline justify-between gap-3">
-              <p className="font-display text-3xl font-bold tabular-nums">{k.value}</p>
-              <span className={`inline-flex items-center gap-1 text-sm font-semibold ${k.urgent ? "text-destructive" : "text-success"}`}>
-                {!k.urgent && (k.up ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />)}{k.trend}
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">{k.note}</p>
+        {stats.map((s) => (
+          <div key={s.label} className="glass rounded-3xl p-5">
+            <div className="flex items-center justify-between"><p className="text-sm text-muted-foreground">{s.label}</p><s.icon className="h-5 w-5 text-primary" /></div>
+            <p className="mt-2 font-display text-3xl font-bold tabular-nums">{isLoading ? "—" : s.value}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{s.note}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-5">
-        <Panel title="Alerts" help="Urgent items need action today. Needs attention can wait until end of day." className="lg:col-span-3" action={<Link to="/admin/compliance" className="text-sm font-semibold text-primary">View all</Link>}>
-          {(["Urgent", "Needs attention", "Informational"] as const).map((lvl) => {
-            const list = alerts.filter((a) => a.level === lvl);
-            return (
-              <div key={lvl} className="mb-4 last:mb-0">
-                <div className="mb-2"><StatusBadge s={lvl} /></div>
-                <ul className="space-y-2">
-                  {list.map((a) => (
-                    <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-secondary p-4">
-                      <div className="min-w-0"><p className="font-medium">{a.title}</p><p className="text-sm text-muted-foreground">{a.detail}</p></div>
-                      <Link to="/admin/customers/$id" params={{ id: a.customer }} className="text-sm font-semibold text-primary">Open customer →</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </Panel>
-        <Panel title="Recent activity" className="lg:col-span-2">
-          <ol className="relative space-y-5 border-l border-border pl-5">
-            {activity.map((a, i) => (
-              <li key={i} className="relative">
-                <span className="absolute -left-[1.6rem] top-1.5 h-2.5 w-2.5 rounded-full bg-gold" />
-                <p className="text-xs text-muted-foreground">{a.time} · {a.kind}</p>
-                <p className="mt-0.5 text-sm">{a.text}</p>
+      <Panel title="Newest customers" className="mt-6" action={<Link to="/admin/users" className="text-sm font-semibold text-primary">Manage users</Link>}>
+        {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : users.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No customers yet. Create the first one from the Users page.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {users.slice(0, 8).map((u) => (
+              <li key={u.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 font-semibold text-primary">{(u.name || u.email)[0]?.toUpperCase()}</span>
+                  <div className="min-w-0"><p className="truncate font-medium">{u.name || "No name yet"}</p><p className="truncate text-sm text-muted-foreground" data-no-translate>{u.email}</p></div>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <span>Joined {fmt(u.createdAt)}</span>
+                  <StatusBadge s={u.accountStatus ? "Active" : u.confirmed ? "Pending" : "Unconfirmed"} />
+                </div>
               </li>
             ))}
-          </ol>
-        </Panel>
-      </div>
+          </ul>
+        )}
+      </Panel>
     </></Localized>
   );
 }

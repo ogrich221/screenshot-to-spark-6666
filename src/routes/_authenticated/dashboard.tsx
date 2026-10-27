@@ -1,6 +1,7 @@
 import { Localized } from '@/components/localized';
 import { TransferPreview } from '@/components/transfer-preview';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate, redirect } from '@tanstack/react-router';
+import { checkAdmin } from '@/lib/admin-users.functions';
 import { queryOptions, useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Wallet, ShieldCheck, ArrowUpRight, CheckCircle2, Eye, EyeOff, LogOut, Home, Mail, Phone, MapPin, User, CreditCard, LifeBuoy, PiggyBank, Clock, Menu, Receipt, Landmark, HandCoins, type LucideIcon } from 'lucide-react';
@@ -14,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const customerQuery = queryOptions({ queryKey: ['customer-account'], queryFn: () => readCustomer() });
-export const Route = createFileRoute('/_authenticated/dashboard')({ loader: ({ context }) => context.queryClient.ensureQueryData(customerQuery), head: () => ({ meta: [{ title: 'My account — LUMEN BANK' }, { name: 'description', content: 'Your LUMEN customer profile, balances and security overview.' }, { property: 'og:title', content: 'My account — LUMEN BANK' }, { property: 'og:description', content: 'Your private customer account overview.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }, { name: 'robots', content: 'noindex' }] }), component: Page });
+export const Route = createFileRoute('/_authenticated/dashboard')({ beforeLoad: async () => { const r = await checkAdmin().catch(() => ({ isAdmin: false })); if (r.isAdmin) throw redirect({ to: '/admin', replace: true }); }, loader: ({ context }) => context.queryClient.ensureQueryData(customerQuery), head: () => ({ meta: [{ title: 'My account — LUMEN BANK' }, { name: 'description', content: 'Your LUMEN customer profile, balances and security overview.' }, { property: 'og:title', content: 'My account — LUMEN BANK' }, { property: 'og:description', content: 'Your private customer account overview.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }, { name: 'robots', content: 'noindex' }] }), component: Page });
 
 const str = (d: unknown, k: string) => (d && typeof d === 'object' && !Array.isArray(d) && typeof (d as Record<string, unknown>)[k] === 'string' ? (d as Record<string, string>)[k] : '');
 
