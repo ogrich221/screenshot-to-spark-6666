@@ -20,4 +20,4 @@
 - Initial hydration and pending navigation share the bank-photo loading component so loading stays branded without delaying completed requests.
 - International wires use the same non-submitting transfer preview with ephemeral beneficiary bank fields; no wire details are persisted or sent.
 - Account and wire labels extend the shared static translation catalogue so new controls use the same localization boundary as existing pages.
-- Profile card designs are unissued previews using only customer name/email, never fabricated card credentials; utility bills reuse cent-based preview calculations without submitting payments or storing bill details.
+- Admin-issued cards live in customer_cards (last4 + expiry only, never full credentials); utility bill payments debit the balance only through the customer_pay_bill SECURITY DEFINER function, which writes a ledger entry.
