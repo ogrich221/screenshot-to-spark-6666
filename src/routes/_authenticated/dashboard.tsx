@@ -25,7 +25,7 @@ function Page() {
   const d = data.profile?.details;
   const first = str(d, 'firstName'), last = str(d, 'lastName');
   const name = [first, last].filter(Boolean).join(' ') || 'LUMEN customer';
-  const initials = ((first[0] ?? '') + (last[0] ?? '')).toUpperCase() || 'L';
+  const initials = ((first?.[0] ?? '') + (last?.[0] ?? '')).toUpperCase() || 'L';
   const address = [str(d, 'address'), str(d, 'city'), str(d, 'region'), str(d, 'postal')].filter(Boolean).join(', ');
   const money = (n: number) => show ? n.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '$••••••';
   const signOut = async () => { await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); await navigate({ to: '/auth', replace: true }); };
