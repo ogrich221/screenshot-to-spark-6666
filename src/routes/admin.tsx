@@ -1,9 +1,12 @@
 import { Localized } from '@/components/localized';
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { checkAdmin } from "@/lib/admin-users.functions";
 import {
   Bell, ChevronsLeft, ChevronsRight, CreditCard, FileBarChart, HelpCircle, Home, LayoutDashboard, LifeBuoy,
-  Lock, Menu, Search, Settings, ShieldAlert, ArrowLeftRight, Users, Wallet, X, ArrowLeft,
+  Lock, Menu, Search, Settings, ShieldAlert, ArrowLeftRight, Users, UserCog, Wallet, X, ArrowLeft,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { alerts } from "@/lib/admin-data";
@@ -27,6 +30,7 @@ export const Route = createFileRoute("/admin")({
 
 export const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard },
+  { to: "/admin/users", label: "Users", icon: UserCog },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/accounts", label: "Accounts", icon: Wallet },
   { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight },
@@ -63,6 +67,45 @@ function NavList({ collapsed, onNav }: { collapsed?: boolean; onNav?: () => void
 }
 
 function AdminLayout() {
+  const check = useServerFn(checkAdmin);
+  const [gate, setGate] = useState<"loading" | "signedOut" | "denied" | "ok">("loading");
+  const [email, setEmail] = useState("");
+  useEffect(() => {
+    let live = true;
+    const run = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) { if (live) setGate("signedOut"); return; }
+      setEmail(data.user.email ?? "");
+      try { const r = await check(); if (live) setGate(r.isAdmin ? "ok" : "denied"); } catch { if (live) setGate("denied"); }
+    };
+    run();
+    const { data: sub } = supabase.auth.onAuthStateChange((e) => { if (e === "SIGNED_IN" || e === "SIGNED_OUT") run(); });
+    return () => { live = false; sub.subscription.unsubscribe(); };
+  }, [check]);
+  if (gate !== "ok") return <AdminGate state={gate} />;
+  return <AdminShell email={email} />;
+}
+
+function AdminGate({ state }: { state: "loading" | "signedOut" | "denied" }) {
+  return (
+    <Localized><div className="grid min-h-screen place-items-center bg-background p-6">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-soft">
+        <div className="mb-6 flex justify-center"><Logo /></div>
+        {state === "loading" ? <p className="text-muted-foreground">Checking your access…</p> : state === "signedOut" ? <>
+          <h1 className="font-display text-xl font-semibold">Administrator sign-in</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in with the administrator email to manage users.</p>
+          <Link to="/auth" className="mt-6 inline-flex h-11 items-center rounded-full bg-gold px-6 text-sm font-semibold text-primary-foreground">Sign in</Link>
+        </> : <>
+          <h1 className="font-display text-xl font-semibold">Access denied</h1>
+          <p className="mt-2 text-sm text-muted-foreground">This account isn't the administrator.</p>
+          <button onClick={() => supabase.auth.signOut()} className="mt-6 inline-flex h-11 items-center rounded-full border border-border px-6 text-sm">Sign out</button>
+        </>}
+      </div>
+    </div></Localized>
+  );
+}
+
+function AdminShell({ email }: { email: string }) {
   const { lang, setLang } = useLocale();
   const [collapsed, setCollapsed] = useState(false);
   const [mobile, setMobile] = useState(false);
@@ -142,12 +185,12 @@ function AdminLayout() {
               )}
             </div>
             <div className="relative">
-              <button onClick={() => { setProfile(!profile); setBell(false); }} aria-label="Profile menu" aria-expanded={profile} className="grid h-11 w-11 place-items-center rounded-full bg-gold font-semibold text-primary-foreground">AR</button>
+              <button onClick={() => { setProfile(!profile); setBell(false); }} aria-label="Profile menu" aria-expanded={profile} className="grid h-11 w-11 place-items-center rounded-full bg-gold font-semibold text-primary-foreground">{(email[0] ?? "A").toUpperCase()}</button>
               {profile && (
                 <div className="absolute right-0 top-14 z-50 w-56 rounded-3xl border border-border bg-popover p-2 shadow-soft">
-                  <div className="px-3 py-2"><p className="font-semibold">Alex Rivera</p><p className="text-xs text-muted-foreground">Administrator</p></div>
+                  <div className="px-3 py-2"><p className="truncate font-semibold" data-no-translate>{email}</p><p className="text-xs text-muted-foreground">Administrator</p></div>
                   <Link to="/admin/settings" onClick={() => setProfile(false)} className="block rounded-2xl px-3 py-2.5 text-sm hover:bg-secondary">Settings</Link>
-                  <Link to="/" className="block rounded-2xl px-3 py-2.5 text-sm hover:bg-secondary">Sign out</Link>
+                  <button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/", replace: true }); }} className="block w-full rounded-2xl px-3 py-2.5 text-left text-sm hover:bg-secondary">Sign out</button>
                 </div>
               )}
             </div>
