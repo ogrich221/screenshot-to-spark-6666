@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pinSchema, securitySchema, consentSchema, initialBalances, questionOptions } from '@/lib/onboarding';
+import { pinSchema, securitySchema, consentSchema, contactSchema, initialBalances, questionOptions } from '@/lib/onboarding';
 describe('Customer onboarding requirements', () => {
   it('starts available balance at 0.00', () => { expect(initialBalances.available).toBe(0); });
   it('starts current balance at 0.00', () => { expect(initialBalances.current).toBe(0); });
@@ -8,4 +8,6 @@ describe('Customer onboarding requirements', () => {
   it('requires a matching PIN confirmation', () => { expect(pinSchema.safeParse({ pin: '4829', confirmPin: '4821', biometric: false }).success).toBe(false); });
   it('requires three distinct security questions', () => { expect(securitySchema.safeParse({ questions: questionOptions.slice(0, 3), answers: ['school', 'city', 'name'] }).success).toBe(true); expect(securitySchema.safeParse({ questions: [questionOptions[0], questionOptions[0], questionOptions[1]], answers: ['school', 'city', 'name'] }).success).toBe(false); });
   it.each(['terms', 'privacy', 'identity'])('requires %s consent', key => { expect(consentSchema.safeParse({ terms: true, privacy: true, identity: true, [key]: false }).success).toBe(false); });
+  it('accepts contact details without a phone number, country or contact method', () => { expect(contactSchema.safeParse({ email: 'sam@example.com', phone: '', address: '12 Rose Lane', city: 'London', region: 'Greater London', postal: 'SW1A 1AA' }).success).toBe(true); });
+  it('still validates an entered phone number and requires the address fields', () => { expect(contactSchema.safeParse({ email: 'sam@example.com', phone: '+14155552671', address: '12 Rose Lane', city: 'London', region: 'Greater London', postal: 'SW1A 1AA' }).success).toBe(true); expect(contactSchema.safeParse({ email: 'sam@example.com', phone: '+14155552671', address: '', city: 'London', region: 'Greater London', postal: 'SW1A 1AA' }).success).toBe(false); expect(contactSchema.safeParse({ email: 'sam@example.com', phone: '15552671', address: '12 Rose Lane', city: 'London', region: 'Greater London', postal: 'SW1A 1AA' }).success).toBe(false); });
 });
