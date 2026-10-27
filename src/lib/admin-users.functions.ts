@@ -33,12 +33,12 @@ export const listUsers = createServerFn({ method: "POST" })
     ]);
     return data.users.map((u) => {
       const d = (profiles?.find((p) => p.id === u.id)?.details ?? {}) as Record<string, unknown>;
-      const profileName = [d.firstName, d.lastName].filter((x) => typeof x === "string" && x).join(" ");
+      const profileName = [d["firstName"], d["lastName"]].filter((x) => typeof x === "string" && x).join(" ");
       const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
       return {
         id: u.id,
         email: u.email ?? "",
-        name: profileName || (typeof meta.full_name === "string" ? meta.full_name : "") || "",
+        name: profileName || (typeof meta["full_name"] === "string" ? meta["full_name"] : "") || "",
         createdAt: u.created_at,
         lastSignIn: u.last_sign_in_at ?? null,
         confirmed: !!u.email_confirmed_at,

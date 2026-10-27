@@ -26,7 +26,7 @@ function UsersPage() {
   const add = useMutation({
     mutationFn: () => create({ data: form }),
     onSuccess: (r) => {
-      if (!r.ok) return toast.error(r.error);
+      if (!r.ok) { toast.error(r.error); return; }
       toast.success(`User ${form.email} created. Share the password with them securely.`);
       setForm({ name: "", email: "", password: "" });
       qc.invalidateQueries({ queryKey: ["admin-users"] });
@@ -37,7 +37,7 @@ function UsersPage() {
     mutationFn: (id: string) => remove({ data: { id } }),
     onSuccess: (r) => {
       setConfirm(null);
-      if (!r.ok) return toast.error(r.error);
+      if (!r.ok) { toast.error(r.error); return; }
       toast.success("User deleted.");
       qc.invalidateQueries({ queryKey: ["admin-users"] });
     },
