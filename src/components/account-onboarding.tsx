@@ -16,7 +16,7 @@ import { blankDetails, personalSchema, contactSchema, securitySchema, pinSchema,
 import { supabase } from '@/integrations/supabase/client';
 import building from '@/assets/bank-building.jpg';
 import { useLocale } from '@/lib/locale';
-import { fr, es, de, pt } from 'date-fns/locale';
+import { enUS, fr, es, de, pt } from 'date-fns/locale';
 
 const steps = [{ label: 'Personal details', icon: UserRound, sub: 'A little about you' }, { label: 'Contact details', icon: Mail, sub: 'Stay connected' }, { label: 'Security questions', icon: ShieldCheck, sub: 'Keep your account yours' }, { label: 'Transfer PIN', icon: KeyRound, sub: 'Protect every transfer' }, { label: 'Review & confirm', icon: CheckCircle2, sub: 'One final check' }];
 const descriptions = ['Use the details on your identity document so we can verify who you are.', 'We need your contact details for account updates and identity checks.', 'These help us confirm it’s you if you ever need account recovery.', 'Your transfer PIN adds an extra layer of protection whenever you send money.', 'Make sure everything is correct before you open your account.'];
@@ -24,7 +24,7 @@ const fieldClass = 'mt-2 h-12 w-full rounded-md border border-input bg-backgroun
 
 export function AccountOnboarding() {
   const { lang } = useLocale();
-  const dateLocale = lang === 'en' ? undefined : ({ fr, es, de, pt } as const)[lang];
+  const dateLocale = lang === 'en' ? enUS : ({ fr, es, de, pt } as const)[lang];
   const { user, loading } = useCustomerAuth();
   const [started, setStarted] = useState(false); const [step, setStep] = useState(1);
   const [details, setDetails] = useState<Details>(blankDetails);
