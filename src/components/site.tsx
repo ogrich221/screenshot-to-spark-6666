@@ -45,7 +45,6 @@ const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
   { group: "Help", items: [
     ["/security", "Security Centre", "How we protect you", "◈"],
     ["/support", "Help & Support", "Real people, 24/7", "?"],
-    ["/admin", "Staff admin", "Operations workspace", "⚙"],
   ] },
 ];
 
