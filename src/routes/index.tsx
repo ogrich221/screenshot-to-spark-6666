@@ -5,6 +5,7 @@ import { Shell, useT } from "@/components/site";
 import building from "@/assets/bank-building.jpg";
 import staffDesk from "@/assets/staff-desk.jpg";
 import manager from "@/assets/branch-manager.jpg";
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,7 +56,7 @@ function Index() {
           <h1 className="mt-6 text-5xl font-bold leading-[1.02] md:text-7xl text-gold">{t.h}</h1>
           <p className="mt-6 max-w-md text-lg text-muted-foreground">{t.sub}</p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#open" className="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 font-semibold text-primary-foreground shadow-glow transition hover:-translate-y-0.5">{t.cta}</a>
+            <Button asChild className="h-14 rounded-full bg-gold px-8 font-semibold shadow-glow transition hover:-translate-y-0.5"><Link to="/open-account">{t.cta}</Link></Button>
             <Link to="/how-it-works" className="glass inline-flex h-14 items-center justify-center rounded-full px-8 font-semibold">{t.cta2} →</Link>
           </div>
           <dl className="mt-12 grid max-w-md grid-cols-3 gap-6">

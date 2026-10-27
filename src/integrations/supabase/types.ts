@@ -125,6 +125,16 @@ export type Database = {
         }
         Returns: string
       }
+      finalize_customer_account: {
+        Args: {
+          p_answer_hashes: string[]
+          p_biometric: boolean
+          p_pin_hash: string
+          p_question_ids: string[]
+          p_user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

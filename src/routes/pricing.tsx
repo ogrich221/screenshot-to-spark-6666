@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from '@/components/ui/button';
 import { FAQ, PageHero, Shell, Stats } from "@/components/site";
 
 export const Route = createFileRoute("/pricing")({
@@ -36,7 +37,7 @@ function Page() {
             <ul className="mt-6 space-y-3 text-sm">
               {p.features.map((f) => <li key={f} className="flex gap-2"><span aria-hidden>✓</span>{f}</li>)}
             </ul>
-            <a href="#open" className={`mt-8 inline-flex h-12 w-full items-center justify-center rounded-full font-semibold ${p.featured ? "bg-background text-foreground" : "border border-primary text-primary"}`}>Choose {p.name}</a>
+            <Button asChild variant="outline" className={`mt-8 h-12 w-full rounded-full font-semibold ${p.featured ? "bg-background text-foreground" : "border-primary text-primary"}`}><Link to="/open-account">Choose {p.name}</Link></Button>
           </div>
         ))}
       </section>

@@ -1,5 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCustomerAuth } from '@/components/customer-auth';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
 
 export const LANGS = {
   en: { label: "EN", full: "English", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
@@ -45,6 +50,9 @@ const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
 
 function DashboardMenu() {
   const { t } = useT();
+  const { user } = useCustomerAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -74,7 +82,9 @@ function DashboardMenu() {
               </nav>
             </div>
           ))}
-          <a href="#open" onClick={() => setOpen(false)} className="mt-1 flex h-12 items-center justify-center rounded-2xl bg-gold text-sm font-semibold text-primary-foreground">{t.cta}</a>
+          {user && <><Button asChild variant="outline" className="mb-2 h-12 w-full"><Link to="/dashboard" onClick={() => setOpen(false)}>My account</Link></Button><Button variant="ghost" className="mb-2 w-full" onClick={async () => { await queryClient.cancelQueries(); queryClient.clear(); await supabase.auth.signOut(); setOpen(false); await navigate({ to: '/auth', replace: true }); }}>Sign out</Button></>}
+          <Button asChild className="mt-1 h-12 w-full bg-gold"><Link to="/open-account" onClick={() => setOpen(false)}>{t.cta}</Link></Button>
+          {!user && <Button asChild variant="link" className="mt-2 w-full"><Link to="/auth" onClick={() => setOpen(false)}>Customer sign-in</Link></Button>}
         </div>
       )}
     </div>
@@ -128,7 +138,7 @@ export function CTA() {
         <div className="pointer-events-none absolute inset-0 bg-light" />
         <h2 className="relative text-4xl font-bold md:text-6xl">Bring your money <span className="text-gold">into the light.</span></h2>
         <p className="relative mx-auto mt-4 max-w-md text-muted-foreground">Open an account in about five minutes. No paperwork, no minimum balance.</p>
-        <a href="#" className="relative mt-8 inline-flex h-14 items-center rounded-full bg-gold px-10 font-semibold text-primary-foreground shadow-glow">{t.cta}</a>
+        <Button asChild className="relative mt-8 h-14 rounded-full bg-gold px-10 font-semibold shadow-glow"><Link to="/open-account">{t.cta}</Link></Button>
       </div>
     </section>
   );

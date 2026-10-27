@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { applicationSchema, detailsSchema } from './onboarding';
 
-const draftSchema = z.object({ details: detailsSchema.partial(), step: z.number().int().min(0).max(5) });
+const draftSchema = z.object({ details: z.object({ firstName: z.string().max(100), middleName: z.string().max(100), lastName: z.string().max(100), dob: z.string().max(10), citizenship: z.string().max(100), email: z.string().max(255), phone: z.string().max(100), address: z.string().max(100), city: z.string().max(100), region: z.string().max(100), postal: z.string().max(100), country: z.string().max(100), contactMethod: z.enum(['Email', 'Phone']) }), step: z.number().int().min(0).max(5) });
 export const readCustomer = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   setResponseHeader('Cache-Control', 'no-store');
   const { data: userData, error: authError } = await context.supabase.auth.getUser();
@@ -34,7 +34,8 @@ export const openCustomerAccount = createServerFn({ method: 'POST' }).middleware
   const answerHashes = await Promise.all(data.security.answers.map(v => hash(v.trim().toLowerCase())));
   const profile = await context.supabase.from('profiles').upsert({ id: context.userId, details: data.details, onboarding_step: 5, updated_at: new Date().toISOString() });
   if (profile.error) throw new Error('Your details could not be saved. Please try again.');
-  const result = await context.supabase.rpc('complete_customer_onboarding', { p_pin_hash: pinHash, p_question_ids: data.security.questions, p_answer_hashes: answerHashes, p_biometric: data.pin.biometric });
+  const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+  const result = await supabaseAdmin.rpc('finalize_customer_account', { p_user_id: context.userId, p_pin_hash: pinHash, p_question_ids: data.security.questions, p_answer_hashes: answerHashes, p_biometric: data.pin.biometric });
   if (result.error) throw new Error('We couldn’t open your account. Please try again.');
   return { id: result.data };
 });
