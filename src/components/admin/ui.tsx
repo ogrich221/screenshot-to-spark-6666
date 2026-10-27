@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ChevronRight, Info } from "lucide-react";
 import type { ReactNode } from "react";
@@ -11,14 +12,14 @@ const tone: Record<string, string> = {
 };
 
 export function StatusBadge({ s }: { s: string }) {
-  return <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${tone[s] ?? "bg-muted text-muted-foreground"}`}><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />{s}</span>;
+  return <Localized><span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${tone[s] ?? "bg-muted text-muted-foreground"}`}><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />{s}</span></Localized>;
 }
 
 export type Crumb = { label: string; to?: string };
 
 export function PageHeader({ crumbs, title, sub, back, actions }: { crumbs: Crumb[]; title: string; sub?: string; back?: { label: string; to: string; search?: Record<string, unknown> }; actions?: ReactNode }) {
   return (
-    <div className="mb-8">
+    <Localized><div className="mb-8">
       <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
         {crumbs.map((c, i) => (
           <span key={i} className="flex items-center gap-1">
@@ -39,13 +40,13 @@ export function PageHeader({ crumbs, title, sub, back, actions }: { crumbs: Crum
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
-    </div>
+    </div></Localized>
   );
 }
 
 export function Panel({ title, help, children, action, className = "" }: { title?: string; help?: string; children: ReactNode; action?: ReactNode; className?: string }) {
   return (
-    <section className={`glass rounded-3xl p-5 md:p-6 ${className}`}>
+    <Localized><section className={`glass rounded-3xl p-5 md:p-6 ${className}`}>
       {title && (
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
@@ -56,17 +57,17 @@ export function Panel({ title, help, children, action, className = "" }: { title
         </div>
       )}
       {children}
-    </section>
+    </section></Localized>
   );
 }
 
 export function Empty({ title, text, action }: { title: string; text: string; action?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+    <Localized><div className="rounded-2xl border border-dashed border-border p-10 text-center">
       <p className="font-semibold">{title}</p>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{text}</p>
       {action && <div className="mt-4">{action}</div>}
-    </div>
+    </div></Localized>
   );
 }
 

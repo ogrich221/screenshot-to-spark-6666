@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -37,16 +38,16 @@ export const NAV = [
 
 function Logo({ small }: { small?: boolean }) {
   return (
-    <Link to="/admin" className="flex items-center gap-2 font-display font-bold tracking-wider">
+    <Localized><Link to="/admin" className="flex items-center gap-2 font-display font-bold tracking-wider">
       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold shadow-glow"><span className="h-2.5 w-2.5 rounded-full bg-background" /></span>
       {!small && <span className="whitespace-nowrap">LUMEN <span className="text-primary">BANK</span></span>}
-    </Link>
+    </Link></Localized>
   );
 }
 
 function NavList({ collapsed, onNav }: { collapsed?: boolean; onNav?: () => void }) {
   return (
-    <nav aria-label="Admin" className="flex flex-col gap-1">
+    <Localized><nav aria-label="Admin" className="flex flex-col gap-1">
       {NAV.map(({ to, label, icon: Icon }) => (
         <Link key={to} to={to} onClick={onNav} title={collapsed ? label : undefined}
           activeOptions={{ exact: to === "/admin" }}
@@ -56,7 +57,7 @@ function NavList({ collapsed, onNav }: { collapsed?: boolean; onNav?: () => void
           {!collapsed && <span>{label}</span>}
         </Link>
       ))}
-    </nav>
+    </nav></Localized>
   );
 }
 
@@ -72,7 +73,7 @@ function AdminLayout() {
   const isRoot = path === "/admin" || path === "/admin/";
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <Localized><div className="flex min-h-screen w-full bg-background">
       <Toaster position="top-center" theme="dark" richColors />
       {/* Desktop sidebar */}
       <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-sidebar p-4 transition-all lg:flex ${collapsed ? "w-20" : "w-64"}`}>
@@ -162,6 +163,6 @@ function AdminLayout() {
           ))}
         </nav>
       </div>
-    </div>
+    </div></Localized>
   );
 }

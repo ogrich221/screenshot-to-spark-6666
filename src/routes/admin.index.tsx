@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDownRight, ArrowUpRight, Download, FolderPlus, Search, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -22,7 +23,7 @@ function Overview() {
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   return (
-    <>
+    <Localized><>
       <PageHeader crumbs={[{ label: "Dashboard" }]} title={`${greet}, Alex`} sub="Here's what's happening across Lumen Bank today. Everything that needs you is at the top."
         actions={<>
           <Link to="/admin/customers" className={btnGhost}><Search className="h-4 w-4" />Find customer</Link>
@@ -77,6 +78,6 @@ function Overview() {
           </ol>
         </Panel>
       </div>
-    </>
+    </></Localized>
   );
 }

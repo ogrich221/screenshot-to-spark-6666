@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileText, Lock, Mail, Phone, Unlock } from "lucide-react";
@@ -42,7 +43,7 @@ function Profile() {
   };
 
   return (
-    <>
+    <Localized><>
       <PageHeader crumbs={[{ label: "Customers", to: "/admin/customers" }, { label: c.name }, { label: tab === "Overview" ? "Profile" : tab }]}
         back={{ label: "Back to customers", to: "/admin/customers" }} title={c.name} sub={`${c.segment} customer since ${c.joined} · ${c.country}`}
         actions={<>
@@ -144,20 +145,20 @@ function Profile() {
           <ul className="mt-4 space-y-2">{notes.map((n, i) => <li key={i} className="rounded-2xl bg-secondary p-4 text-sm">{n}<p className="mt-1 text-xs text-muted-foreground">Alex Rivera</p></li>)}</ul>
         </Panel>
       )}
-    </>
+    </></Localized>
   );
 }
 
 function AccountsList({ accs }: { accs: typeof accounts }) {
-  if (!accs.length) return <Empty title="No accounts" text="This customer has no open accounts." />;
+  if (!accs.length) return <Localized><Empty title="No accounts" text="This customer has no open accounts." /></Localized>;
   return (
-    <ul className="space-y-3">
+    <Localized><ul className="space-y-3">
       {accs.map((a) => (
         <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-secondary p-4">
           <div><p className="font-medium">{a.type}</p><p className="text-xs text-muted-foreground">{a.number} · Restrictions: {a.restriction}</p></div>
           <div className="flex items-center gap-3"><span className="font-display text-lg font-semibold tabular-nums">{money(a.balance, a.currency)}</span><StatusBadge s={a.status} /></div>
         </li>
       ))}
-    </ul>
+    </ul></Localized>
   );
 }

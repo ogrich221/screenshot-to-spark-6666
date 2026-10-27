@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
@@ -61,7 +62,7 @@ export function CustomerSignIn() {
     finally { setBusy(false); setPassword(''); }
   };
   const social = async (provider: 'google' | 'lovable') => { setBusy(true); setError(''); try { const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + '/open-account' }); if (result.error) setError('Sign-in was not completed. Please try again.'); } catch { setError('Sign-in was not completed. Please try again.'); } finally { setBusy(false); } };
-  return <div className="max-w-md space-y-6">
+  return <Localized><div className="max-w-md space-y-6">
     <div><h2 className="text-2xl font-semibold">{mode === 'signup' ? 'A secure place to start.' : mode === 'forgot' ? 'Reset your password.' : 'Welcome back.'}</h2><p className="mt-2 text-sm text-muted-foreground">{mode === 'signup' ? 'Create your sign-in to keep your application private and return whenever you need.' : mode === 'forgot' ? 'We’ll email you a secure reset link.' : 'Sign in to finish your application or view your account.'}</p></div>
     <form onSubmit={submit} className="space-y-4">
       <label className="block text-sm font-medium">Email address<Input className="mt-2 h-12" type="email" autoComplete="email" value={email} maxLength={255} onChange={e => setEmail(e.target.value)} required /></label>
@@ -71,5 +72,5 @@ export function CustomerSignIn() {
     </form>
     {mode !== 'forgot' && <><div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or continue with<span className="h-px flex-1 bg-border" /></div><div className="grid gap-3"><Button variant="outline" className="h-12" disabled={busy} onClick={() => social('google')}>Continue with Google</Button><Button className="lovable-auth-button w-full" disabled={busy} onClick={() => social('lovable')}>Continue with Lovable</Button></div></>}
     <div className="flex flex-wrap gap-x-4 gap-y-1"><Button variant="link" className="h-auto px-0" onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setError(''); setMessage(''); }}>{mode === 'signup' ? 'Already registered? Sign in' : 'Create a sign-in'}</Button>{mode === 'signin' && <Button variant="link" className="h-auto px-0" onClick={() => setMode('forgot')}>Forgot password?</Button>}</div>
-  </div>;
+  </div></Localized>;
 }

@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { accounts, cards, cases, alerts, transactions, customerById, money } from "@/lib/admin-data";
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/admin/cards")({
 
 function Page() {
   const n = (id: string) => customerById(id)?.name ?? id;
-  return <DataPage title="Cards" crumb="Cards" sub="Freeze, limit or replace cards. Every change is logged and reversible." rows={cards}
+  return <Localized><DataPage title="Cards" crumb="Cards" sub="Freeze, limit or replace cards. Every change is logged and reversible." rows={cards}
     filters={["Active", "Frozen", "Cancelled"]} filterKey={(r) => r.status}
     cols={[
       { label: "Card", cell: (r) => <><p className="font-medium">{r.type}</p><p className="text-xs text-muted-foreground">•••• {r.last4} · exp {r.expires}</p></>, text: (r) => r.type + r.last4 },
@@ -20,5 +21,5 @@ function Page() {
       { label: "Daily limit", right: true, cell: (r) => money(r.limit, "USD") },
       { label: "Action", right: true, cell: (r) => r.status === "Cancelled" ? <span className="text-muted-foreground">—</span> :
         <button className="font-semibold text-primary" onClick={() => toast.success(r.status === "Frozen" ? "Card unfrozen" : "Card frozen", { action: { label: "Undo", onClick: () => toast("Change undone") } })}>{r.status === "Frozen" ? "Unfreeze" : "Freeze"}</button> },
-    ]} />;
+    ]} /></Localized>;
 }

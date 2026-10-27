@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { customers } from "@/lib/admin-data";
@@ -27,7 +28,7 @@ function Customers() {
     (!search.status || c.status === search.status) && (!search.segment || c.segment === search.segment));
 
   return (
-    <>
+    <Localized><>
       <PageHeader crumbs={[{ label: "Dashboard", to: "/admin" }, { label: "Customers" }]} back={{ label: "Back to dashboard", to: "/admin" }}
         title="Customers" sub="Find anyone by name, email, ID or country. Your filters stay in place when you come back." />
       <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Saved views">
@@ -79,6 +80,6 @@ function Customers() {
         )}
         <p className="mt-4 text-sm text-muted-foreground">Showing {rows.length} of {customers.length} customers</p>
       </Panel>
-    </>
+    </></Localized>
   );
 }

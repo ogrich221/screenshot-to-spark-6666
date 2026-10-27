@@ -1,3 +1,4 @@
+import { Localized } from '@/components/localized';
 import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -15,7 +16,7 @@ export function DataPage<T>({ title, crumb, sub, rows, cols, filters, filterKey,
     (!q || cols.some((c) => (c.text?.(r) ?? "").toLowerCase().includes(q.toLowerCase()))) &&
     (f === "All" || filterKey?.(r) === f));
   return (
-    <>
+    <Localized><>
       <PageHeader crumbs={[{ label: "Dashboard", to: "/admin" }, { label: crumb }]} back={{ label: "Back to dashboard", to: "/admin" }} title={title} sub={sub} actions={actions} />
       {above}
       <Panel>
@@ -45,10 +46,10 @@ export function DataPage<T>({ title, crumb, sub, rows, cols, filters, filterKey,
         )}
         <p className="mt-4 text-sm text-muted-foreground">Showing {list.length} of {rows.length}</p>
       </Panel>
-    </>
+    </></Localized>
   );
 }
 
 export function CustomerLink({ id, name }: { id: string; name?: string }) {
-  return <Link to="/admin/customers/$id" params={{ id }} className="font-medium hover:text-primary">{name ?? id}</Link>;
+  return <Localized><Link to="/admin/customers/$id" params={{ id }} className="font-medium hover:text-primary">{name ?? id}</Link></Localized>;
 }
