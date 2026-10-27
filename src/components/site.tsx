@@ -2,11 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 export const LANGS = {
-  en: { label: "EN · English", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["How it works", "Pricing", "Savings", "Security"], dash: "Dashboard" },
-  fr: { label: "FR · Français", h: "La banque, en toute clarté.", sub: "Des comptes simples, des frais transparents et un contrôle total sur votre argent—où que la vie vous mène.", cta: "Ouvrir un compte", cta2: "Découvrir le fonctionnement", nav: ["Fonctionnement", "Tarifs", "Épargne", "Sécurité"], dash: "Tableau de bord" },
-  es: { label: "ES · Español", h: "Banca, con claridad.", sub: "Cuentas simples, comisiones transparentes y control total de tu dinero—dondequiera que te lleve la vida.", cta: "Abrir una cuenta", cta2: "Cómo funciona", nav: ["Cómo funciona", "Precios", "Ahorro", "Seguridad"], dash: "Panel" },
-  de: { label: "DE · Deutsch", h: "Banking, ganz klar.", sub: "Einfache Konten, transparente Gebühren und volle Kontrolle über Ihr Geld—wohin das Leben Sie auch führt.", cta: "Konto eröffnen", cta2: "So funktioniert's", nav: ["So geht's", "Preise", "Sparen", "Sicherheit"], dash: "Übersicht" },
-  pt: { label: "PT · Português", h: "Banco, com clareza.", sub: "Contas simples, tarifas transparentes e controle total do seu dinheiro—onde quer que a vida o leve.", cta: "Abrir conta", cta2: "Veja como funciona", nav: ["Como funciona", "Preços", "Poupança", "Segurança"], dash: "Painel" },
+  en: { label: "EN", full: "English", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
+  fr: { label: "FR", full: "Français", h: "La banque, en toute clarté.", sub: "Des comptes simples, des frais transparents et un contrôle total sur votre argent—où que la vie vous mène.", cta: "Ouvrir un compte", cta2: "Découvrir le fonctionnement", nav: ["Banque au quotidien", "Frais & tarifs", "Épargne & objectifs", "Centre de sécurité"], dash: "Tableau de bord" },
+  es: { label: "ES", full: "Español", h: "Banca, con claridad.", sub: "Cuentas simples, comisiones transparentes y control total de tu dinero—dondequiera que te lleve la vida.", cta: "Abrir una cuenta", cta2: "Cómo funciona", nav: ["Banca personal", "Tarifas", "Ahorro y metas", "Centro de seguridad"], dash: "Panel" },
+  de: { label: "DE", full: "Deutsch", h: "Banking, ganz klar.", sub: "Einfache Konten, transparente Gebühren und volle Kontrolle über Ihr Geld—wohin das Leben Sie auch führt.", cta: "Konto eröffnen", cta2: "So funktioniert's", nav: ["Privatkonto", "Gebühren & Preise", "Sparen & Ziele", "Sicherheitscenter"], dash: "Übersicht" },
+  pt: { label: "PT", full: "Português", h: "Banco, com clareza.", sub: "Contas simples, tarifas transparentes e controle total do seu dinheiro—onde quer que a vida o leve.", cta: "Abrir conta", cta2: "Veja como funciona", nav: ["Conta pessoal", "Tarifas", "Poupança e metas", "Central de segurança"], dash: "Painel" },
 } as const;
 export type Lang = keyof typeof LANGS;
 
@@ -35,10 +35,9 @@ function DashboardMenu() {
   }, []);
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="true"
-        className="inline-flex h-11 items-center gap-2 rounded-full bg-gold px-4 text-sm font-semibold text-primary-foreground shadow-glow">
-        <span aria-hidden className="grid grid-cols-2 gap-0.5">{[0, 1, 2, 3].map((i) => <span key={i} className="h-1.5 w-1.5 rounded-sm bg-primary-foreground" />)}</span>
-        {t.dash}
+      <button onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="true" aria-label={t.dash}
+        className="grid h-11 w-11 place-items-center rounded-full bg-gold shadow-glow">
+        <span aria-hidden className="flex flex-col gap-1">{[0, 1, 2, 3].map((i) => <span key={i} className="block h-0.5 w-5 rounded bg-primary-foreground" />)}</span>
       </button>
       {open && (
         <div className="absolute right-0 top-14 border border-border bg-popover shadow-soft z-50 w-72 rounded-3xl p-4 animate-in fade-in slide-in-from-top-2">
@@ -72,15 +71,15 @@ export function Header() {
         <div className="flex items-center gap-3">
           <label className="sr-only" htmlFor="lang">Language</label>
           <select id="lang" value={lang} onChange={(e) => setLang(e.target.value as Lang)}
-            className="h-11 rounded-full border border-border bg-secondary px-3 text-sm font-medium text-foreground">
-            {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            className="h-9 rounded-full border border-border bg-secondary px-2 text-xs font-semibold text-foreground">
+            {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k} aria-label={v.full}>{v.label}</option>)}
           </select>
-          <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-wider">
+          <Link to="/" className="flex items-center gap-2 font-display text-base font-bold tracking-wider sm:text-lg">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-gold shadow-glow"><span className="h-2.5 w-2.5 rounded-full bg-background" /></span>
-            <span className="hidden sm:inline">LUMEN</span>
+            <span className="whitespace-nowrap">LUMEN <span className="text-primary">BANK</span></span>
           </Link>
         </div>
-        <nav className="hidden gap-7 text-sm font-medium text-muted-foreground lg:flex">
+        <nav className="hidden gap-6 text-sm font-medium text-muted-foreground xl:flex">
           {PAGES.map((p, i) => <Link key={p} to={p} className="hover:text-foreground" activeProps={{ className: "text-primary" }}>{t.nav[i]}</Link>)}
         </nav>
         <DashboardMenu />
@@ -126,7 +125,7 @@ export function Footer() {
           <p className="mt-2 text-sm text-muted-foreground">Transparent by design.</p>
         </div>
         {([
-          ["Products", [["Current account", "/how-it-works"], ["Savings", "/savings"], ["Pricing", "/pricing"]]],
+          ["Products", [["Personal banking", "/how-it-works"], ["Savings & goals", "/savings"], ["Fees & pricing", "/pricing"]]],
           ["Support", [["Help centre", "/how-it-works"], ["Contact us", "/security"]]],
           ["Security", [["How we protect you", "/security"], ["Report fraud", "/security"]]],
           ["Legal", [["Fee schedule", "/pricing"], ["Privacy", "/security"], ["Terms", "/pricing"]]],
@@ -149,4 +148,34 @@ export function Footer() {
 
 export function Shell({ children }: { children: ReactNode }) {
   return (<><Header /><main>{children}</main><CTA /><Footer /></>);
+}
+
+export function FAQ({ items }: { items: [string, string][] }) {
+  return (
+    <section className="mx-auto max-w-3xl px-5 pt-24">
+      <h2 className="text-3xl font-bold">Frequently asked questions</h2>
+      <div className="mt-8 divide-y divide-border border-y border-border">
+        {items.map(([q, a]) => (
+          <details key={q} className="group py-5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-medium">
+              {q}<span aria-hidden className="text-primary transition group-open:rotate-45">+</span>
+            </summary>
+            <p className="mt-3 text-muted-foreground">{a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function Stats({ items }: { items: [string, string][] }) {
+  return (
+    <section className="mx-auto max-w-6xl px-5 pt-24">
+      <dl className="grid grid-cols-2 gap-6 rounded-3xl border border-border p-8 md:grid-cols-4">
+        {items.map(([v, l]) => (
+          <div key={l}><dt className="font-display text-3xl font-bold text-gold">{v}</dt><dd className="mt-1 text-sm text-muted-foreground">{l}</dd></div>
+        ))}
+      </dl>
+    </section>
+  );
 }
