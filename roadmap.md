@@ -4,3 +4,9 @@
 - [x] Add zero-balance success and customer dashboard; connect account-opening buttons.
 - [x] Verify persisted account opening, privacy boundaries and mobile layout.
 - [x] Make English, French, Spanish, German and Portuguese translate all public pages, customer forms and admin screens.
+
+# Transfer review
+- [x] Add a guided transfer preview with balance impact and downloadable summary, without claiming an unconnected payment succeeded.
+- [x] Translate the new transfer experience; verify balance calculations and isolated desktop/mobile controls, including summary download.
+- [ ] Verify through the signed-in customer dashboard — blocked: requesting user has no matching auth account; sign in in the preview.
+- [ ] Enable real transfer success and payment receipts — blocked: regulated payment services are not connected.
