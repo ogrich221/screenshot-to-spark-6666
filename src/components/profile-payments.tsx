@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Localized } from '@/components/localized';
 import { useServerFn } from '@tanstack/react-start';
-import { myCards, payBill } from '@/lib/admin-users.functions';
+import { myCards, requestDebit } from '@/lib/admin-users.functions';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { transferPreview } from '@/lib/transfer-preview';
 
@@ -42,12 +42,12 @@ export function UtilityBills({ availableBalance }: { availableBalance: number })
   const [step, setStep] = useState<'details' | 'review' | 'summary'>('details');
   const preview = transferPreview(availableBalance, amount);
   const qc = useQueryClient();
-  const pay = useServerFn(payBill);
+  const pay = useServerFn(requestDebit);
   const [result, setResult] = useState<{ id: string; balance: number; paidAt: string } | null>(null);
   const [error, setError] = useState('');
   const submit = useMutation({
-    mutationFn: () => pay({ data: { type: type as 'Electricity', provider, reference, amount } }),
-    onSuccess: r => { if (!r.ok) { setError(r.error); return; } setError(''); setResult({ id: r.id, balance: r.balance, paidAt: new Date().toLocaleString() }); setStep('summary'); qc.invalidateQueries({ queryKey: ['customer-account'] }); qc.invalidateQueries({ queryKey: ['my-transactions'] }); },
+    mutationFn: () => pay({ data: { category: 'bill', amount, narration: `${type} bill — ${provider.trim()} (ref ${reference.trim()})`.slice(0, 200), details: { type, provider: provider.trim(), reference: reference.trim() } } }),
+    onSuccess: r => { if (!r.ok) { setError(r.error); return; } setError(''); setResult({ id: r.id, balance: availableBalance, paidAt: new Date().toLocaleString() }); setStep('summary'); qc.invalidateQueries({ queryKey: ['customer-account'] }); qc.invalidateQueries({ queryKey: ['my-transactions'] }); },
     onError: () => setError('The bill could not be paid. Please try again.'),
   });
   const start = (bill: string) => { setType(bill); setProvider(''); setReference(''); setAmount(''); setStep('details'); setResult(null); setError(''); setOpen(true); };
@@ -56,8 +56,8 @@ export function UtilityBills({ availableBalance }: { availableBalance: number })
     <h2 className="flex items-center gap-2 text-lg font-semibold"><Receipt className="size-5 text-primary" />Utility bills</h2>
     <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{billTypes.map(([label, Icon]) => <Button key={label} variant="outline" className="h-24 flex-col gap-3 whitespace-normal text-center" onClick={() => start(label)}><Icon className="size-5 text-primary" />{label}</Button>)}</div>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="profile-theme max-h-[90dvh] overflow-y-auto rounded-lg"><DialogHeader>
-      <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" onClick={() => step === 'details' ? setOpen(false) : step === 'summary' ? setOpen(false) : setStep('details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? 'Utility bill payment' : step === 'review' ? 'Review bill' : 'Payment receipt'}</DialogTitle></div>
-      <DialogDescription>{step === 'summary' ? 'Your bill has been paid from your LUMEN account.' : 'The amount is taken from your available balance when you confirm.'}</DialogDescription>
+      <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" onClick={() => step === 'details' ? setOpen(false) : step === 'summary' ? setOpen(false) : setStep('details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? 'Utility bill payment' : step === 'review' ? 'Review bill' : 'Payment submitted'}</DialogTitle></div>
+      <DialogDescription>{step === 'summary' ? 'Awaiting approval. Your balance changes once it is approved.' : 'The amount is taken from your available balance when you confirm.'}</DialogDescription>
     </DialogHeader>
     {step === 'details' ? <form onSubmit={review} className="space-y-4">
       <label className="block text-sm" htmlFor="bill-type">Bill type<select id="bill-type" value={type} onChange={e => setType(e.target.value)} className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3">{billTypes.map(([label]) => <option key={label} value={label}>{label}</option>)}</select></label>
@@ -67,16 +67,16 @@ export function UtilityBills({ availableBalance }: { availableBalance: number })
       {amount && (!preview.valid || !preview.withinLimit) && <p role="alert" className="text-sm text-destructive">Enter an amount greater than zero with up to two decimal places.</p>}
       <Button type="submit" className="h-12 w-full" disabled={!provider.trim() || !reference.trim() || !preview.valid || !preview.withinLimit}>Review bill<ArrowUpRight /></Button>
     </form> : <>
-      {step === 'summary' && <div role="status" className="flex gap-3 rounded-md border border-success/30 bg-success/10 p-4 text-success"><CheckCircle2 className="size-5 shrink-0" /><div><p className="font-semibold">Payment successful</p><p className="mt-1 text-sm">Your bill has been paid.</p></div></div>}
+      {step === 'summary' && <div role="status" className="flex gap-3 rounded-md border border-success/30 bg-success/10 p-4 text-success"><CheckCircle2 className="size-5 shrink-0" /><div><p className="font-semibold">Payment submitted</p><p className="mt-1 text-sm">It is awaiting approval.</p></div></div>}
       <dl className="space-y-4 py-3 text-sm">{[['Bill type', type], ['Service provider', provider], ['Customer or bill reference', reference]].map(([label, value]) => <div key={label} className="flex justify-between gap-5"><dt className="text-muted-foreground">{label}</dt><dd className="max-w-[60%] break-words text-right" data-no-translate={label !== 'Bill type'}>{value}</dd></div>)}
         <div className="flex justify-between gap-4"><dt>Bill amount (USD)</dt><dd>{money(preview.amount)}</dd></div>
         <div className="flex justify-between gap-4"><dt>Available balance</dt><dd>{money(availableBalance)}</dd></div>
-        <div className="flex justify-between gap-4 border-t border-border pt-4"><dt>{result ? 'New available balance' : preview.sufficient ? 'Balance after payment' : 'Balance unchanged'}</dt><dd className="font-semibold text-primary">{money(result ? result.balance : preview.remainingBalance)}</dd></div>
-        {result && <><div className="flex justify-between gap-4"><dt className="text-muted-foreground">Date</dt><dd data-no-translate>{result.paidAt}</dd></div><div className="flex justify-between gap-4"><dt className="text-muted-foreground">Receipt number</dt><dd className="font-mono text-xs" data-no-translate>{result.id.slice(0, 8).toUpperCase()}</dd></div></>}
+        <div className="flex justify-between gap-4 border-t border-border pt-4"><dt>{result ? 'Available balance until approved' : preview.sufficient ? 'Balance after payment' : 'Balance unchanged'}</dt><dd className="font-semibold text-primary">{money(result ? result.balance : preview.remainingBalance)}</dd></div>
+        {result && <><div className="flex justify-between gap-4"><dt className="text-muted-foreground">Date</dt><dd data-no-translate>{result.paidAt}</dd></div><div className="flex justify-between gap-4"><dt className="text-muted-foreground">Request number</dt><dd className="font-mono text-xs" data-no-translate>{result.id.slice(0, 8).toUpperCase()}</dd></div></>}
       </dl>
       {step === 'review' && !preview.sufficient && <p className="text-sm text-warning">Insufficient funds. Add money to your account before paying this bill.</p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button className="h-12" disabled={step === 'review' && (!preview.sufficient || submit.isPending)} onClick={() => step === 'review' ? submit.mutate() : setOpen(false)}>{step === 'review' ? submit.isPending ? 'Paying…' : `Pay ${money(preview.amount)}` : 'Done'}</Button>
+      <Button className="h-12" disabled={step === 'review' && (!preview.sufficient || submit.isPending)} onClick={() => step === 'review' ? submit.mutate() : setOpen(false)}>{step === 'review' ? submit.isPending ? 'Submitting…' : `Pay ${money(preview.amount)}` : 'Done'}</Button>
     </>}
     </DialogContent></Dialog>
   </section></Localized>;

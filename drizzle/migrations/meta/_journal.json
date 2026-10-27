@@ -64,6 +64,13 @@
       "when": 1793111950431,
       "tag": "0008_customer_pay_bill",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793112214676,
+      "tag": "0009_transaction_approvals",
+      "breakpoints": true
     }
   ]
 }

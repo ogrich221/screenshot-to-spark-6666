@@ -18,34 +18,49 @@ export type Database = {
         Row: {
           account_id: string
           amount: number
-          balance_after: number
+          balance_after: number | null
+          category: string
           created_at: string
           created_by: string
+          details: Json
           id: string
           kind: string
           narration: string
+          review_note: string | null
+          reviewed_at: string | null
+          status: string
           user_id: string
         }
         Insert: {
           account_id: string
           amount: number
-          balance_after: number
+          balance_after?: number | null
+          category?: string
           created_at?: string
           created_by: string
+          details?: Json
           id?: string
           kind: string
           narration: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          status?: string
           user_id: string
         }
         Update: {
           account_id?: string
           amount?: number
-          balance_after?: number
+          balance_after?: number | null
+          category?: string
           created_at?: string
           created_by?: string
+          details?: Json
           id?: string
           kind?: string
           narration?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -238,6 +253,10 @@ export type Database = {
         }
         Returns: number
       }
+      admin_review_transaction: {
+        Args: { p_approve: boolean; p_id: string; p_note: string }
+        Returns: string
+      }
       complete_customer_onboarding: {
         Args: {
           p_answer_hashes: string[]
@@ -255,6 +274,15 @@ export type Database = {
           p_type: string
         }
         Returns: Json
+      }
+      customer_request_debit: {
+        Args: {
+          p_amount: number
+          p_category: string
+          p_details: Json
+          p_narration: string
+        }
+        Returns: string
       }
       finalize_customer_account: {
         Args: {

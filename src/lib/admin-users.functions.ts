@@ -127,8 +127,8 @@ export const setCardStatus = createServerFn({ method: "POST" })
     return error ? { ok: false as const, error: "Could not update the card." } : { ok: true as const };
   });
 
-export type Txn = { id: string; userId: string; kind: string; amount: number; narration: string; balanceAfter: number; createdAt: string };
-const toTxn = (r: { id: string; user_id: string; kind: string; amount: number; narration: string; balance_after: number; created_at: string }): Txn => ({ id: r.id, userId: r.user_id, kind: r.kind, amount: Number(r.amount), narration: r.narration, balanceAfter: Number(r.balance_after), createdAt: r.created_at });
+export type Txn = { id: string; userId: string; kind: string; amount: number; narration: string; balanceAfter: number | null; createdAt: string; status: string; category: string; details: Record<string, string>; reviewNote: string | null };
+const toTxn = (r: { id: string; user_id: string; kind: string; amount: number; narration: string; balance_after: number | null; created_at: string; status: string; category: string; details: unknown; review_note: string | null }): Txn => ({ id: r.id, userId: r.user_id, kind: r.kind, amount: Number(r.amount), narration: r.narration, balanceAfter: r.balance_after == null ? null : Number(r.balance_after), createdAt: r.created_at, status: r.status, category: r.category, details: (r.details ?? {}) as Record<string, string>, reviewNote: r.review_note });
 
 export const listLedger = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -160,12 +160,23 @@ export const postTransaction = createServerFn({ method: "POST" })
     return { ok: true as const, balance: Number(bal) };
   });
 
-export const payBill = createServerFn({ method: "POST" })
+const detailsSchema = z.record(z.string().max(60), z.string().max(240)).refine((d) => Object.keys(d).length <= 12);
+
+export const requestDebit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ type: z.enum(["Electricity", "Water", "Gas", "Internet & phone"]), provider: z.string().trim().min(1).max(120), reference: z.string().trim().min(1).max(100), amount: z.string().regex(/^\d+(\.\d{1,2})?$/) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ category: z.enum(["bill", "domestic", "international"]), amount: z.string().regex(/^\d+(\.\d{1,2})?$/), narration: z.string().trim().min(1).max(200), details: detailsSchema }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: res, error } = await context.supabase.rpc("customer_pay_bill", { p_type: data.type, p_provider: data.provider, p_reference: data.reference, p_amount: Number(data.amount) });
-    if (error) return { ok: false as const, error: error.message.includes("Insufficient") ? "Insufficient funds. No money was sent." : "The bill could not be paid. Please try again." };
-    const r = res as { id: string; balance: number };
-    return { ok: true as const, id: r.id, balance: Number(r.balance) };
+    const { data: id, error } = await context.supabase.rpc("customer_request_debit", { p_category: data.category, p_amount: Number(data.amount), p_narration: data.narration, p_details: data.details });
+    if (error) return { ok: false as const, error: error.message.includes("Insufficient") ? "Insufficient funds." : "Your request could not be submitted. Please try again." };
+    return { ok: true as const, id: String(id) };
+  });
+
+export const reviewTransaction = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), approve: z.boolean(), note: z.string().max(200).default("") }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as Ctx);
+    const { data: status, error } = await context.supabase.rpc("admin_review_transaction", { p_id: data.id, p_approve: data.approve, p_note: data.note });
+    if (error) return { ok: false as const, error: /pending|Insufficient/.test(error.message) ? error.message : "Could not review the transaction." };
+    return { ok: true as const, status: String(status) };
   });
