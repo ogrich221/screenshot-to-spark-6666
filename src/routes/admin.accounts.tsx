@@ -1,7 +1,7 @@
 import { Localized } from '@/components/localized';
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { accounts, cards, cases, alerts, transactions, customerById, money } from "@/lib/admin-data";
+import { accounts, cards, cases, alerts, transactions, customerById, money, loadAdminData } from "@/lib/admin-data";
 import { DataPage, CustomerLink } from "@/components/admin/DataPage";
 import { PageHeader, Panel, StatusBadge, btnGhost, btnPrimary } from "@/components/admin/ui";
 
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/admin/accounts")({
 });
 
 function Page() {
+  loadAdminData();
   const n = (id: string) => customerById(id)?.name ?? id;
   return <Localized><DataPage title="Accounts" crumb="Accounts" sub="Balances, restrictions and verification at a glance." rows={accounts}
     filters={["Verified", "Review needed", "Temporarily restricted", "Closed"]} filterKey={(r) => r.status}

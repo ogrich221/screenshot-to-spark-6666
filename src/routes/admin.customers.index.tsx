@@ -1,7 +1,7 @@
 import { Localized } from '@/components/localized';
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { customers } from "@/lib/admin-data";
+import { customers, loadAdminData } from "@/lib/admin-data";
 import { Empty, PageHeader, Panel, StatusBadge, btnGhost, input } from "@/components/admin/ui";
 
 type S = { q?: string | undefined; status?: string | undefined; segment?: string | undefined };
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/admin/customers/")({
 const VIEWS: [string, S][] = [["All customers", {}], ["Needs review", { status: "Review needed" }], ["Restricted", { status: "Temporarily restricted" }], ["Premier", { segment: "Premier" }]];
 
 function Customers() {
+  loadAdminData();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/admin/customers/" });
   const set = (patch: Partial<S>) => navigate({ search: (p) => ({ ...p, ...patch }), replace: true });
