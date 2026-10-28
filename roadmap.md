@@ -1,4 +1,5 @@
 # Account opening
+- [ ] Restyle admin and customer dashboards with glass surfaces and a shared logo backdrop; check rendering without changing banking behavior.
 - [x] Refresh profile palette, add physical/virtual card designs and utility bill previews, add wire bank address, remove Add money and the disconnected-services banner; isolated interactions and mobile layout verified.
 - [x] Simplify customer page, add sidebar security and back arrows, international wire previews and bank-photo loading; calculations and isolated wire flow verified.
 - [x] Add secure sign-in and saved customer profiles.

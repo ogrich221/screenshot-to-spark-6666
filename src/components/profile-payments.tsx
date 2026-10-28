@@ -54,7 +54,7 @@ export function UtilityBills({ availableBalance }: { availableBalance: number })
   const review = (event: FormEvent) => { event.preventDefault(); if (provider.trim() && reference.trim() && preview.valid && preview.withinLimit) setStep('review'); };
   return <Localized><section className="mt-8 border-t border-border pt-7">
     <h2 className="flex items-center gap-2 text-lg font-semibold"><Receipt className="size-5 text-primary" />Utility bills</h2>
-    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{billTypes.map(([label, Icon]) => <Button key={label} variant="outline" className="h-24 flex-col gap-3 whitespace-normal text-center" onClick={() => start(label)}><Icon className="size-5 text-primary" />{label}</Button>)}</div>
+    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{billTypes.map(([label, Icon]) => <Button key={label} variant="outline" className="dashboard-glass h-24 flex-col gap-3 whitespace-normal text-center" onClick={() => start(label)}><Icon className="size-5 text-primary" />{label}</Button>)}</div>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="profile-theme max-h-[90dvh] overflow-y-auto rounded-lg"><DialogHeader>
       <div className="flex items-center gap-2"><Button variant="ghost" size="icon" aria-label="Back" onClick={() => step === 'details' ? setOpen(false) : step === 'summary' ? setOpen(false) : setStep('details')}><ArrowLeft /></Button><DialogTitle>{step === 'details' ? 'Utility bill payment' : step === 'review' ? 'Review bill' : 'Payment submitted'}</DialogTitle></div>
       <DialogDescription>{step === 'summary' ? 'Awaiting approval. Your balance changes once it is approved.' : 'The amount is taken from your available balance when you confirm.'}</DialogDescription>
