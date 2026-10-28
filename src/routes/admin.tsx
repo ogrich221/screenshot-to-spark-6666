@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { checkAdmin } from "@/lib/admin-users.functions";
+import { adminPasscodeLogin } from "@/lib/admin-login.functions";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Bell, ChevronsLeft, ChevronsRight, CreditCard, FileBarChart, HelpCircle, Home, LayoutDashboard, LifeBuoy,
   Lock, Menu, Search, Settings, ShieldAlert, ArrowLeftRight, Users, UserCog, Wallet, X, ArrowLeft,
@@ -82,6 +84,26 @@ function AdminLayout() {
   return <AdminShell email={email} />;
 }
 
+function PasscodeForm() {
+  const login = useServerFn(adminPasscodeLogin);
+  const [passcode, setPasscode] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  return <form className="mt-6 space-y-4 text-left" onSubmit={async (e) => {
+    e.preventDefault(); setBusy(true); setError("");
+    try {
+      const r = await login({ data: { passcode } });
+      if (!r.ok) setError(r.error);
+      else { setPasscode(""); await supabase.auth.setSession({ access_token: r.accessToken, refresh_token: r.refreshToken }); }
+    } catch { setError("Could not sign in. Please try again."); }
+    setBusy(false);
+  }}>
+    <label className="block text-sm" htmlFor="admin-passcode">Passcode<PasswordInput id="admin-passcode" autoComplete="current-password" required maxLength={128} value={passcode} onChange={(e) => setPasscode(e.target.value)} className="mt-2 h-12" /></label>
+    {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+    <button disabled={busy || !passcode} className="inline-flex h-11 w-full items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
+  </form>;
+}
+
 function AdminGate({ state }: { state: "loading" | "signedOut" | "denied" }) {
   return (
     <Localized><div className="grid min-h-screen place-items-center bg-background p-6">
@@ -89,8 +111,8 @@ function AdminGate({ state }: { state: "loading" | "signedOut" | "denied" }) {
         <div className="mb-6 flex justify-center"><Logo /></div>
         {state === "loading" ? <p className="text-muted-foreground">Checking your access…</p> : state === "signedOut" ? <>
           <h1 className="font-display text-xl font-semibold">Administrator sign-in</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Sign in with the administrator email to manage users.</p>
-          <Link to="/auth" className="mt-6 inline-flex h-11 items-center rounded-full bg-gold px-6 text-sm font-semibold text-primary-foreground">Sign in</Link>
+          <p className="mt-2 text-sm text-muted-foreground">Enter your administrator passcode.</p>
+          <PasscodeForm />
         </> : <>
           <h1 className="font-display text-xl font-semibold">Access denied</h1>
           <p className="mt-2 text-sm text-muted-foreground">This account isn't the administrator.</p>
