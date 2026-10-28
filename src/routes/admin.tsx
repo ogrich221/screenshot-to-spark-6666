@@ -1,4 +1,5 @@
 import { Localized } from '@/components/localized';
+import { DashboardBackdrop } from '@/components/dashboard-backdrop';
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -113,10 +114,11 @@ function AdminShell({ email }: { email: string }) {
   const isRoot = path === "/admin" || path === "/admin/";
 
   return (
-    <Localized><div className="flex min-h-screen w-full bg-background">
+    <Localized><div className="dashboard-workspace flex min-h-screen w-full bg-background">
+      <DashboardBackdrop />
       <Toaster position="top-center" theme="dark" richColors />
       {/* Desktop sidebar */}
-      <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-sidebar p-4 transition-all lg:flex ${collapsed ? "w-20" : "w-64"}`}>
+      <aside className={`dashboard-chrome sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-sidebar p-4 transition-all lg:flex ${collapsed ? "w-20" : "w-64"}`}>
         <div className="mb-8 px-1"><Logo small={collapsed} /></div>
         <NavList collapsed={collapsed} />
         <div className="mt-auto space-y-2">
@@ -132,7 +134,7 @@ function AdminShell({ email }: { email: string }) {
       {mobile && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button aria-label="Close menu" className="absolute inset-0 bg-background/70 backdrop-blur-sm" onClick={() => setMobile(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col border-r border-border bg-sidebar p-4 animate-in slide-in-from-left">
+          <div className="dashboard-chrome absolute inset-y-0 left-0 flex w-72 flex-col border-r border-border bg-sidebar p-4 animate-in slide-in-from-left">
             <div className="mb-6 flex items-center justify-between">
               <Logo />
               <button onClick={() => setMobile(false)} aria-label="Close menu" className="grid h-11 w-11 place-items-center rounded-full bg-secondary"><X className="h-5 w-5" /></button>
@@ -144,7 +146,7 @@ function AdminShell({ email }: { email: string }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl md:px-6">
+        <header className="dashboard-chrome sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl md:px-6">
           <button onClick={() => setMobile(true)} aria-label="Open menu" className="grid h-11 w-11 place-items-center rounded-full bg-secondary lg:hidden"><Menu className="h-5 w-5" /></button>
           {!isRoot && (
             <button onClick={() => window.history.back()} aria-label="Go back" className="grid h-11 w-11 place-items-center rounded-full border border-border lg:hidden"><ArrowLeft className="h-5 w-5" /></button>
@@ -197,7 +199,7 @@ function AdminShell({ email }: { email: string }) {
         </main>
 
         {/* Mobile bottom nav */}
-        <nav aria-label="Quick" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
+        <nav aria-label="Quick" className="dashboard-chrome fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
           {NAV.filter((n) => ["Overview", "Customers", "Transactions", "Support cases", "Compliance"].includes(n.label)).map(({ to, label, icon: Icon }) => (
             <Link key={to} to={to} activeOptions={{ exact: to === "/admin" }} className="flex h-16 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{ className: "text-primary" }}>
               <Icon className="h-5 w-5" />{label.replace("Support cases", "Cases")}
