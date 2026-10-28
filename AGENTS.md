@@ -9,6 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+- Admin sign-in is passcode-only via a public server function that compares against a server secret and signs in the configured admin; role checks still gate every admin action.
 - Admin workspace lives under /admin (src/routes/admin*.tsx) with its own layout; it uses sample data from src/lib/admin-data.ts until a real backend is added, because no database is connected yet.
 - Public pages share header/footer via Shell in src/components/site.tsx so navigation stays consistent.
 - Private dashboards share DashboardBackdrop and scoped dashboard-workspace surface tokens so glass styling stays consistent without changing public pages.
