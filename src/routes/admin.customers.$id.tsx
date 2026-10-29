@@ -511,7 +511,7 @@ function Profile() {
           <ul className="mt-4 space-y-2">
             {notes.map((n, i) => (
               <li key={i} className="rounded-2xl bg-secondary p-4 text-sm">
-                {n}<p className="mt-1 text-xs text-muted-foreground">Alex Rivera</p>
+                {n}<p className="mt-1 text-xs text-muted-foreground" data-no-translate>LUMENBANK CEO</p>
               </li>
             ))}
           </ul>
