@@ -188,11 +188,11 @@ export const cards = [
 ];
 
 export const cases = [
-  { id: "CS-418", customer: "c-1002", subject: "Can't see my salary deposit", priority: "Needs attention", status: "Open", owner: "Alex Rivera", updated: "12 min ago" },
-  { id: "CS-417", customer: "c-1005", subject: "Card frozen while travelling", priority: "Urgent", status: "Open", owner: "Alex Rivera", updated: "26 min ago" },
-  { id: "CS-415", customer: "c-1001", subject: "Question about currency fee", priority: "Informational", status: "Waiting on customer", owner: "Alex Rivera", updated: "1 h ago" },
-  { id: "CS-412", customer: "c-1007", subject: "Upload business documents", priority: "Needs attention", status: "Open", owner: "Alex Rivera", updated: "3 h ago" },
-  { id: "CS-409", customer: "c-1003", subject: "Statement download", priority: "Informational", status: "Resolved", owner: "Alex Rivera", updated: "Yesterday" },
+  { id: "CS-418", customer: "c-1002", subject: "Can't see my salary deposit", priority: "Needs attention", status: "Open", owner: "LUMENBANK CEO", updated: "12 min ago" },
+  { id: "CS-417", customer: "c-1005", subject: "Card frozen while travelling", priority: "Urgent", status: "Open", owner: "LUMENBANK CEO", updated: "26 min ago" },
+  { id: "CS-415", customer: "c-1001", subject: "Question about currency fee", priority: "Informational", status: "Waiting on customer", owner: "LUMENBANK CEO", updated: "1 h ago" },
+  { id: "CS-412", customer: "c-1007", subject: "Upload business documents", priority: "Needs attention", status: "Open", owner: "LUMENBANK CEO", updated: "3 h ago" },
+  { id: "CS-409", customer: "c-1003", subject: "Statement download", priority: "Informational", status: "Resolved", owner: "LUMENBANK CEO", updated: "Yesterday" },
 ];
 
 export const alerts = [

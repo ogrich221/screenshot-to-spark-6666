@@ -31,7 +31,7 @@ function Overview() {
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   return (
     <Localized><>
-      <PageHeader crumbs={[{ label: "Dashboard" }]} title={`${greet}, Administrator`} sub="Manage customer logins and account applications in one place."
+      <PageHeader crumbs={[{ label: "Dashboard" }]} title={`${greet}, LUMENBANK CEO`} sub="Manage customer logins and account applications in one place."
         actions={<>
           <Link to="/admin/users" className={btnGhost}><Users className="h-4 w-4" />All users</Link>
           <Link to="/admin/users" className={btnPrimary}><UserPlus className="h-4 w-4" />Create user</Link>
