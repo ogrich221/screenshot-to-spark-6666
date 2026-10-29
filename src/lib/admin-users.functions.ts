@@ -9,10 +9,14 @@ import {
   postAccountTransaction,
   updateAdminTransaction,
   loadAdminData,
+  saveAdminData,
   type Customer,
+  type AdminTx,
 } from "@/lib/admin-data";
 
-type Ctx = { supabase: { rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => PromiseLike<{ data: boolean | null }> }; userId: string };
+type Ctx = { supabase: { rpc: (fn: "has_role" | "customer_request_debit" | "admin_review_transaction", args: any) => PromiseLike<{ data: any; error?: any }> }; userId: string };
+
+const ADMIN_EMAIL = (process.env["ADMIN_LOGIN_EMAIL"] || "mrkeepasmile200@outlook.com").toLowerCase();
 
 async function assertAdmin(context: Ctx) {
   // If service role key is not configured, we allow admin actions in mock/preview mode
@@ -21,7 +25,6 @@ async function assertAdmin(context: Ctx) {
     const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
     if (!data) throw new Error("Only the administrator can do this.");
   } catch (err: unknown) {
-    // If table/function not initialized yet in preview, allow fallback
     console.warn("assertAdmin fallback:", err);
   }
 }
@@ -52,6 +55,15 @@ export type AdminUser = {
   details: Record<string, unknown>;
 };
 
+// Filter out any customer that matches the admin email
+function filterOutAdminCustomer<T extends { email?: string | null; isAdmin?: boolean }>(list: T[]): T[] {
+  return list.filter((u) => {
+    const email = (u.email || "").toLowerCase();
+    if (email === ADMIN_EMAIL && !u.isAdmin) return false;
+    return true;
+  });
+}
+
 export const listUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminUser[]> => {
@@ -60,33 +72,36 @@ export const listUsers = createServerFn({ method: "POST" })
     // If Supabase service role key is missing, fall back to admin-data customers
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
       loadAdminData();
-      return customers.map((c) => {
-        const acc = accounts.find((a) => a.customer === c.id);
-        const parts = c.name.split(" ");
-        return {
-          id: c.id,
-          email: c.email,
-          name: c.name,
-          createdAt: c.joined,
-          lastSignIn: null,
-          confirmed: true,
-          accountStatus: c.status,
-          isAdmin: false,
-          balance: acc?.balance ?? 0,
-          phone: c.phone,
-          details: {
-            firstName: parts[0] || "",
-            lastName: parts.slice(1).join(" ") || "",
+      const list = customers
+        .filter((c) => c.email.toLowerCase() !== ADMIN_EMAIL)
+        .map((c) => {
+          const acc = accounts.find((a) => a.customer === c.id);
+          const parts = c.name.split(" ");
+          return {
+            id: c.id,
+            email: c.email,
+            name: c.name,
+            createdAt: c.joined,
+            lastSignIn: null,
+            confirmed: true,
+            accountStatus: c.status,
+            isAdmin: false,
+            balance: acc?.balance ?? 0,
             phone: c.phone,
-            country: c.country,
-            citizenship: c.country,
-            address: c.address || "",
-            city: c.city || "",
-            region: c.region || "",
-            postal: c.postal || "",
-          },
-        };
-      });
+            details: {
+              firstName: parts[0] || "",
+              lastName: parts.slice(1).join(" ") || "",
+              phone: c.phone,
+              country: c.country,
+              citizenship: c.country,
+              address: c.address || "",
+              city: c.city || "",
+              region: c.region || "",
+              postal: c.postal || "",
+            },
+          };
+        });
+      return list;
     }
 
     try {
@@ -99,12 +114,13 @@ export const listUsers = createServerFn({ method: "POST" })
         supabaseAdmin.from("user_roles").select("user_id,role").eq("role", "admin"),
         supabaseAdmin.from("profiles").select("id,details").in("id", ids),
       ]);
-      return data.users.map((u) => {
+      const mapped = data.users.map((u) => {
         const prof = profiles?.find((p) => p.id === u.id);
         const d = (prof?.details ?? {}) as Record<string, unknown>;
         const profileName = [d["firstName"], d["lastName"]].filter((x) => typeof x === "string" && x).join(" ");
         const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
         const acc = accs?.find((a) => a.user_id === u.id);
+        const isAdmin = !!roles?.some((r) => r.user_id === u.id);
         return {
           id: u.id,
           email: u.email ?? "",
@@ -116,38 +132,48 @@ export const listUsers = createServerFn({ method: "POST" })
           balance: acc ? Number(acc.available_balance) : 0,
           phone: typeof d["phone"] === "string" ? d["phone"] : (typeof meta["phone"] === "string" ? meta["phone"] : ""),
           details: d,
-          isAdmin: !!roles?.some((r) => r.user_id === u.id),
-        };
-      }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    } catch {
-      loadAdminData();
-      return customers.map((c) => {
-        const acc = accounts.find((a) => a.customer === c.id);
-        const parts = c.name.split(" ");
-        return {
-          id: c.id,
-          email: c.email,
-          name: c.name,
-          createdAt: c.joined,
-          lastSignIn: null,
-          confirmed: true,
-          accountStatus: c.status,
-          isAdmin: false,
-          balance: acc?.balance ?? 0,
-          phone: c.phone,
-          details: {
-            firstName: parts[0] || "",
-            lastName: parts.slice(1).join(" ") || "",
-            phone: c.phone,
-            country: c.country,
-            citizenship: c.country,
-            address: c.address || "",
-            city: c.city || "",
-            region: c.region || "",
-            postal: c.postal || "",
-          },
+          isAdmin,
         };
       });
+
+      // Filter out any customer user matching the admin's email
+      const filtered = mapped.filter((u) => {
+        if (!u.isAdmin && u.email.toLowerCase() === ADMIN_EMAIL) return false;
+        return true;
+      });
+
+      return filtered.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    } catch {
+      loadAdminData();
+      return customers
+        .filter((c) => c.email.toLowerCase() !== ADMIN_EMAIL)
+        .map((c) => {
+          const acc = accounts.find((a) => a.customer === c.id);
+          const parts = c.name.split(" ");
+          return {
+            id: c.id,
+            email: c.email,
+            name: c.name,
+            createdAt: c.joined,
+            lastSignIn: null,
+            confirmed: true,
+            accountStatus: c.status,
+            isAdmin: false,
+            balance: acc?.balance ?? 0,
+            phone: c.phone,
+            details: {
+              firstName: parts[0] || "",
+              lastName: parts.slice(1).join(" ") || "",
+              phone: c.phone,
+              country: c.country,
+              citizenship: c.country,
+              address: c.address || "",
+              city: c.city || "",
+              region: c.region || "",
+              postal: c.postal || "",
+            },
+          };
+        });
     }
   });
 
@@ -185,6 +211,7 @@ export const createUser = createServerFn({ method: "POST" })
         status: "Verified",
         restriction: "None",
       });
+      saveAdminData();
       return { ok: true as const, id };
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -202,11 +229,18 @@ export const deleteUser = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as Ctx);
     if (data.id === context.userId) return { ok: false as const, error: "You can't delete your own administrator account." };
+
+    loadAdminData();
+    const idx = customers.findIndex((x) => x.id === data.id || x.email.toLowerCase() === ADMIN_EMAIL);
+    if (idx !== -1) {
+      customers.splice(idx, 1);
+      saveAdminData();
+    }
+
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("c-")) {
-      const idx = customers.findIndex((x) => x.id === data.id);
-      if (idx !== -1) customers.splice(idx, 1);
       return { ok: true as const };
     }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("customer_security").delete().eq("user_id", data.id);
     await supabaseAdmin.from("customer_accounts").delete().eq("user_id", data.id);
@@ -581,9 +615,47 @@ export const requestDebit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ category: z.enum(["bill", "domestic", "international"]), amount: z.string().regex(/^\d+(\.\d{1,2})?$/), narration: z.string().trim().min(1).max(200), details: detailsSchema }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: id, error } = await context.supabase.rpc("customer_request_debit", { p_category: data.category, p_amount: Number(data.amount), p_narration: data.narration, p_details: data.details });
-    if (error) return { ok: false as const, error: error.message.includes("Insufficient") ? "Insufficient funds." : "Your request could not be submitted. Please try again." };
-    return { ok: true as const, id: String(id) };
+    const amount = Number(data.amount);
+
+    // If using Supabase
+    if (process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
+      try {
+        const { data: id, error } = await context.supabase.rpc("customer_request_debit", {
+          p_category: data.category,
+          p_amount: amount,
+          p_narration: data.narration,
+          p_details: data.details,
+        });
+        if (error) return { ok: false as const, error: error.message.includes("Insufficient") ? "Insufficient funds." : "Your request could not be submitted. Please try again." };
+        return { ok: true as const, id: String(id) };
+      } catch (err: any) {
+        return { ok: false as const, error: err?.message || "Failed to process transfer request." };
+      }
+    }
+
+    // Preview / local admin-data mode:
+    // Debit immediately, mark pending until admin approves
+    loadAdminData();
+    const acc = accounts[0];
+    if (!acc) return { ok: false as const, error: "No account found." };
+    if (acc.balance < amount) return { ok: false as const, error: "Insufficient funds." };
+
+    acc.balance = Math.round((acc.balance - amount) * 100) / 100;
+    const txId = `tx-${Date.now().toString().slice(-6)}`;
+    const newTx: AdminTx = {
+      id: txId,
+      customer: acc.customer,
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      description: data.narration,
+      amount: -amount,
+      currency: acc.currency,
+      status: "Pending",
+      balanceAfter: acc.balance,
+    };
+    transactions.unshift(newTx);
+    saveAdminData();
+
+    return { ok: true as const, id: txId };
   });
 
 export const reviewTransaction = createServerFn({ method: "POST" })
@@ -591,8 +663,32 @@ export const reviewTransaction = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string(), approve: z.boolean(), note: z.string().max(200).default("") }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as Ctx);
-    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) return { ok: true as const, status: data.approve ? "completed" : "declined" };
-    const { data: status, error } = await context.supabase.rpc("admin_review_transaction", { p_id: data.id, p_approve: data.approve, p_note: data.note });
+
+    loadAdminData();
+    const localTx = transactions.find((t) => t.id === data.id);
+    if (localTx) {
+      if (data.approve) {
+        localTx.status = "Completed";
+      } else {
+        localTx.status = "Reversed";
+        // Refund debited amount back to customer
+        const acc = accounts.find((a) => a.customer === localTx.customer);
+        if (acc) {
+          acc.balance = Math.round((acc.balance + Math.abs(localTx.amount)) * 100) / 100;
+        }
+      }
+      saveAdminData();
+    }
+
+    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("tx-")) {
+      return { ok: true as const, status: data.approve ? "completed" : "declined" };
+    }
+
+    const { data: status, error } = await context.supabase.rpc("admin_review_transaction", {
+      p_id: data.id,
+      p_approve: data.approve,
+      p_note: data.note,
+    });
     if (error) return { ok: false as const, error: /pending|Insufficient/.test(error.message) ? error.message : "Could not review the transaction." };
     return { ok: true as const, status: String(status) };
   });
