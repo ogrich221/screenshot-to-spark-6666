@@ -52,7 +52,7 @@ export type AdminUser = {
   isAdmin: boolean;
   balance: number;
   phone: string;
-  details: Record<string, unknown>;
+  details: Record<string, string | number | boolean | null>;
 };
 
 // Filter out any customer that matches the admin email
@@ -116,7 +116,7 @@ export const listUsers = createServerFn({ method: "POST" })
       ]);
       const mapped = data.users.map((u) => {
         const prof = profiles?.find((p) => p.id === u.id);
-        const d = (prof?.details ?? {}) as Record<string, unknown>;
+        const d = (prof?.details ?? {}) as Record<string, string | number | boolean | null>;
         const profileName = [d["firstName"], d["lastName"]].filter((x) => typeof x === "string" && x).join(" ");
         const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
         const acc = accs?.find((a) => a.user_id === u.id);

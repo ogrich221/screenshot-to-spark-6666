@@ -61,7 +61,7 @@ export type AdminTx = {
   amount: number;
   currency: string;
   status: TxStatus;
-  balanceAfter?: number;
+  balanceAfter?: number | undefined;
 };
 
 export const defaultTransactions: AdminTx[] = [
