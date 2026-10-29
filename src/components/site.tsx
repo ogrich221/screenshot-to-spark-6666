@@ -118,3 +118,49 @@ export function CTA() {
     </section></Localized>
   );
 }
+
+export function Features({ items }: { items: ReadonlyArray<readonly [string, string]> }) {
+  return (
+    <Localized><section className="mx-auto max-w-6xl px-5 py-16">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map(([title, body]) => (
+          <div key={title} className="rounded-3xl border border-border bg-card/60 p-6 backdrop-blur">
+            <h3 className="font-display text-lg font-semibold text-primary">{title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+          </div>
+        ))}
+      </div>
+    </section></Localized>
+  );
+}
+
+export function Stats({ items }: { items: ReadonlyArray<readonly [string, string]> }) {
+  return (
+    <Localized><section className="mx-auto max-w-6xl px-5 py-12">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {items.map(([value, label]) => (
+          <div key={label} className="rounded-3xl border border-border p-6 text-center">
+            <p className="font-display text-3xl font-bold text-gold">{value}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+          </div>
+        ))}
+      </div>
+    </section></Localized>
+  );
+}
+
+export function FAQ({ items }: { items: ReadonlyArray<readonly [string, string]> }) {
+  return (
+    <Localized><section className="mx-auto max-w-3xl px-5 py-16">
+      <h2 className="mb-6 text-3xl font-bold">Questions, answered.</h2>
+      <div className="space-y-3">
+        {items.map(([q, a]) => (
+          <details key={q} className="rounded-2xl border border-border bg-card/60 p-5">
+            <summary className="cursor-pointer font-semibold">{q}</summary>
+            <p className="mt-3 text-sm text-muted-foreground">{a}</p>
+          </details>
+        ))}
+      </div>
+    </section></Localized>
+  );
+}
