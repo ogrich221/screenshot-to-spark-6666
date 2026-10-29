@@ -550,7 +550,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
     await assertAdmin(context as unknown as Ctx);
 
     const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
-    updateDataCustomerProfile(data.id, {
+    updateDataCustomerProfile(data.id, Object.fromEntries(Object.entries({
       name: fullName || undefined,
       email: data.email,
       phone: data.phone,
@@ -559,7 +559,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
       city: data.city,
       region: data.region,
       postal: data.postal,
-    });
+    }).filter(([, v]) => v !== undefined)));
 
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("c-")) {
       return { ok: true as const };
@@ -568,9 +568,9 @@ export const updateUserProfile = createServerFn({ method: "POST" })
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: prof } = await supabaseAdmin.from("profiles").select("*").eq("id", data.id).maybeSingle();
-      const currentDetails = (prof?.details ?? {}) as Record<string, unknown>;
+      const currentDetails = (prof?.details ?? {}) as Record<string, string | number | boolean | null>;
 
-      const updatedDetails: Record<string, unknown> = {
+      const updatedDetails: Record<string, string | number | boolean | null> = {
         ...currentDetails,
         ...(data.firstName !== undefined ? { firstName: data.firstName } : {}),
         ...(data.lastName !== undefined ? { lastName: data.lastName } : {}),
@@ -592,7 +592,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
 
       const authUpdate: { email?: string; user_metadata?: Record<string, unknown> } = {};
       if (data.email) authUpdate.email = data.email;
-      if (fullName) authUpdate.user_metadata = { full_name: fullName, phone: data.phone || currentDetails.phone };
+      if (fullName) authUpdate.user_metadata = { full_name: fullName, phone: data.phone || currentDetails["phone"] };
 
       if (Object.keys(authUpdate).length > 0) {
         await supabaseAdmin.auth.admin.updateUserById(data.id, authUpdate);
