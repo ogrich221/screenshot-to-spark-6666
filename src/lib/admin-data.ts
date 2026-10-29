@@ -136,7 +136,7 @@ export const postAccountTransaction = (params: {
   kind: "credit" | "debit";
   amount: number;
   narration: string;
-  date?: string;
+  date?: string | undefined;
   status?: TxStatus;
 }) => {
   loadAdminData();
