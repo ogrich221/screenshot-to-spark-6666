@@ -10,11 +10,11 @@ import { Button } from '@/components/ui/button';
 import { LocaleProvider, useLocale } from '@/lib/locale';
 
 export const LANGS = {
-  en: { label: "EN", full: "English", signin: "Sign in", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
-  fr: { label: "FR", full: "Français", signin: "Se connecter", h: "La banque, en toute clarté.", sub: "Des comptes simples, des frais transparents et un contrôle total sur votre argent—où que la vie vous mène.", cta: "Ouvrir un compte", cta2: "Découvrir le fonctionnement", nav: ["Banque au quotidien", "Frais & tarifs", "Épargne & objectifs", "Centre de sécurité"], dash: "Tableau de bord" },
-  es: { label: "ES", full: "Español", signin: "Iniciar sesión", h: "Banca, con claridad.", sub: "Cuentas simples, comisiones transparentes y control total de tu dinero—dondequiera que te lleve la vida.", cta: "Abrir una cuenta", cta2: "Cómo funciona", nav: ["Banca personal", "Tarifas", "Ahorro y metas", "Centro de seguridad"], dash: "Panel" },
-  de: { label: "DE", full: "Deutsch", signin: "Anmelden", h: "Banking, ganz klar.", sub: "Einfache Konten, transparente Gebühren und volle Kontrolle über Ihr Geld—wohin das Leben Sie auch führt.", cta: "Konto eröffnen", cta2: "So funktioniert's", nav: ["Privatkonto", "Gebühren & Preise", "Sparen & Ziele", "Sicherheitscenter"], dash: "Übersicht" },
-  pt: { label: "PT", full: "Português", signin: "Entrar", h: "Banco, com clareza.", sub: "Contas simples, tarifas transparentes e controle total do seu dinheiro—onde quer que a vida o leve.", cta: "Abrir conta", cta2: "Veja como funciona", nav: ["Conta pessoal", "Tarifas", "Poupança e metas", "Central de segurança"], dash: "Painel" },
+  en: { label: "EN", full: "English", signin: "Sign in", login: "Log in", h: "Banking, clearly.", sub: "Simple accounts, transparent fees, and complete control over your money—wherever life takes you.", cta: "Open an account", cta2: "Explore how it works", nav: ["Personal Banking", "Fees & Pricing", "Savings & Goals", "Security Centre"], dash: "Dashboard" },
+  fr: { label: "FR", full: "Français", signin: "Se connecter", login: "Connexion", h: "La banque, en toute clarté.", sub: "Des comptes simples, des frais transparents et un contrôle total sur votre argent—où que la vie vous mène.", cta: "Ouvrir un compte", cta2: "Découvrir le fonctionnement", nav: ["Banque au quotidien", "Frais & tarifs", "Épargne & objectifs", "Centre de sécurité"], dash: "Tableau de bord" },
+  es: { label: "ES", full: "Español", signin: "Iniciar sesión", login: "Iniciar sesión", h: "Banca, con claridad.", sub: "Cuentas simples, comisiones transparentes y control total de tu dinero—dondequiera que te lleve la vida.", cta: "Abrir una cuenta", cta2: "Cómo funciona", nav: ["Banca personal", "Tarifas", "Ahorro y metas", "Centro de seguridad"], dash: "Panel" },
+  de: { label: "DE", full: "Deutsch", signin: "Anmelden", login: "Einloggen", h: "Banking, ganz klar.", sub: "Einfache Konten, transparente Gebühren und volle Kontrolle über Ihr Geld—wohin das Leben Sie auch führt.", cta: "Konto eröffnen", cta2: "So funktioniert's", nav: ["Privatkonto", "Gebühren & Preise", "Sparen & Ziele", "Sicherheitscenter"], dash: "Übersicht" },
+  pt: { label: "PT", full: "Português", signin: "Entrar", login: "Acessar", h: "Banco, com clareza.", sub: "Contas simples, tarifas transparentes e controle total do seu dinheiro—onde quer que a vida o leve.", cta: "Abrir conta", cta2: "Veja como funciona", nav: ["Conta pessoal", "Tarifas", "Poupança e metas", "Central de segurança"], dash: "Painel" },
 } as const;
 export type Lang = keyof typeof LANGS;
 
@@ -28,7 +28,7 @@ export const useT = () => {
 
 const PAGES = ["/how-it-works", "/pricing", "/savings", "/security"] as const;
 
-type MenuTo = "/" | (typeof PAGES)[number] | "/cards" | "/transfers" | "/business" | "/loans" | "/support" | "/admin";
+type MenuTo = "/" | (typeof PAGES)[number] | "/cards" | "/transfers" | "/business" | "/loans" | "/support";
 const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
   { group: "Banking", items: [
     ["/", "Home", "Overview", "⌂"],
@@ -51,8 +51,6 @@ const MENU: { group: string; items: [MenuTo, string, string, string][] }[] = [
 function DashboardMenu() {
   const { t } = useT();
   const { user } = useCustomerAuth();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -82,9 +80,18 @@ function DashboardMenu() {
               </nav>
             </div>
           ))}
-          {user && <><Button asChild variant="outline" className="mb-2 h-12 w-full"><Link to="/dashboard" onClick={() => setOpen(false)}>My account</Link></Button><Button variant="ghost" className="mb-2 w-full" onClick={async () => { await queryClient.cancelQueries(); queryClient.clear(); await supabase.auth.signOut(); setOpen(false); await navigate({ to: '/auth', replace: true }); }}>Sign out</Button></>}
+          {user ? (
+            <Button asChild variant="outline" className="mb-2 h-12 w-full">
+              <Link to="/dashboard" onClick={() => setOpen(false)}>My account</Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild variant="outline" className="mb-2 h-12 w-full">
+                <Link to="/auth" onClick={() => setOpen(false)}>Log in</Link>
+              </Button>
+            </>
+          )}
           <Button asChild className="mt-1 h-12 w-full bg-gold"><Link to="/open-account" onClick={() => setOpen(false)}>{t.cta}</Link></Button>
-          {!user && <Button asChild variant="link" className="mt-2 w-full"><Link to="/auth" onClick={() => setOpen(false)}>Customer sign-in</Link></Button>}
         </div>
       )}
     </div></Localized>
@@ -100,7 +107,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <label className="sr-only" htmlFor="lang">Language</label>
           <select id="lang" value={lang} onChange={(e) => setLang(e.target.value as Lang)}
-            className="h-9 rounded-full border border-border bg-secondary px-2 text-xs font-semibold text-foreground">
+            className="h-9 rounded-md border border-border bg-secondary px-2 text-xs font-semibold text-foreground">
             {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k} aria-label={v.full}>{v.label}</option>)}
           </select>
           <Link to="/" className="flex items-center gap-2 font-display text-base font-bold tracking-wider sm:text-lg">
@@ -112,9 +119,13 @@ export function Header() {
           {PAGES.map((p, i) => <Link key={p} to={p} className="hover:text-foreground" activeProps={{ className: "text-primary" }}>{t.nav[i]}</Link>)}
         </nav>
         <div className="flex items-center gap-2">
-          {!user && (
+          {user ? (
             <Button asChild variant="outline" className="h-10 rounded-full border-primary/40 px-5 text-sm font-semibold hover:bg-secondary">
-              <Link to="/auth">{t.signin}</Link>
+              <Link to="/dashboard">My account</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline" className="h-10 rounded-full border-primary/40 px-5 text-sm font-semibold hover:bg-secondary">
+              <Link to="/auth">Log in</Link>
             </Button>
           )}
           <DashboardMenu />
