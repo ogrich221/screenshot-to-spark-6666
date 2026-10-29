@@ -162,7 +162,7 @@ function UsersPage() {
       });
     },
     onSuccess: (r) => {
-      if (!r.ok) { toast.error(r.error); return; }
+      if (!r.ok) { toast.error("error" in r ? String(r.error) : "Update failed."); return; }
       toast.success("Customer profile updated successfully.");
       setEditingUser(null);
       qc.invalidateQueries({ queryKey: ["admin-users"] });

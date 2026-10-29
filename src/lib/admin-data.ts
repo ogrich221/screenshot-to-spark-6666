@@ -61,7 +61,7 @@ export type AdminTx = {
   amount: number;
   currency: string;
   status: TxStatus;
-  balanceAfter?: number;
+  balanceAfter?: number | undefined;
 };
 
 export const defaultTransactions: AdminTx[] = [
@@ -136,7 +136,7 @@ export const postAccountTransaction = (params: {
   kind: "credit" | "debit";
   amount: number;
   narration: string;
-  date?: string;
+  date?: string | undefined;
   status?: TxStatus;
 }) => {
   loadAdminData();

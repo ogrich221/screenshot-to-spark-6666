@@ -52,7 +52,7 @@ export type AdminUser = {
   isAdmin: boolean;
   balance: number;
   phone: string;
-  details: Record<string, unknown>;
+  details: Record<string, string | number | boolean | null>;
 };
 
 // Filter out any customer that matches the admin email
@@ -116,7 +116,7 @@ export const listUsers = createServerFn({ method: "POST" })
       ]);
       const mapped = data.users.map((u) => {
         const prof = profiles?.find((p) => p.id === u.id);
-        const d = (prof?.details ?? {}) as Record<string, unknown>;
+        const d = (prof?.details ?? {}) as Record<string, string | number | boolean | null>;
         const profileName = [d["firstName"], d["lastName"]].filter((x) => typeof x === "string" && x).join(" ");
         const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
         const acc = accs?.find((a) => a.user_id === u.id);
@@ -499,11 +499,11 @@ export const updateTransaction = createServerFn({ method: "POST" })
       pending: "Pending",
       declined: "Reversed",
     };
-    updateAdminTransaction(data.id, {
+    updateAdminTransaction(data.id, Object.fromEntries(Object.entries({
       description: data.narration,
       date: data.date ? data.date.replace("T", " ") : undefined,
       status: data.status ? statusMap[data.status] : undefined,
-    });
+    }).filter(([, v]) => v !== undefined)) as Partial<AdminTx>);
 
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("tx-")) {
       return { ok: true as const };
@@ -511,7 +511,7 @@ export const updateTransaction = createServerFn({ method: "POST" })
 
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const patch: Record<string, unknown> = {};
+      const patch: { narration?: string; kind?: string; status?: string; created_at?: string } = {};
       if (data.narration !== undefined && data.narration.trim()) patch.narration = data.narration.trim();
       if (data.kind !== undefined) patch.kind = data.kind;
       if (data.status !== undefined) patch.status = data.status;
@@ -550,7 +550,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
     await assertAdmin(context as unknown as Ctx);
 
     const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
-    updateDataCustomerProfile(data.id, {
+    updateDataCustomerProfile(data.id, Object.fromEntries(Object.entries({
       name: fullName || undefined,
       email: data.email,
       phone: data.phone,
@@ -559,7 +559,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
       city: data.city,
       region: data.region,
       postal: data.postal,
-    });
+    }).filter(([, v]) => v !== undefined)));
 
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("c-")) {
       return { ok: true as const };
@@ -568,9 +568,9 @@ export const updateUserProfile = createServerFn({ method: "POST" })
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: prof } = await supabaseAdmin.from("profiles").select("*").eq("id", data.id).maybeSingle();
-      const currentDetails = (prof?.details ?? {}) as Record<string, unknown>;
+      const currentDetails = (prof?.details ?? {}) as Record<string, string | number | boolean | null>;
 
-      const updatedDetails: Record<string, unknown> = {
+      const updatedDetails: Record<string, string | number | boolean | null> = {
         ...currentDetails,
         ...(data.firstName !== undefined ? { firstName: data.firstName } : {}),
         ...(data.lastName !== undefined ? { lastName: data.lastName } : {}),
@@ -592,7 +592,7 @@ export const updateUserProfile = createServerFn({ method: "POST" })
 
       const authUpdate: { email?: string; user_metadata?: Record<string, unknown> } = {};
       if (data.email) authUpdate.email = data.email;
-      if (fullName) authUpdate.user_metadata = { full_name: fullName, phone: data.phone || currentDetails.phone };
+      if (fullName) authUpdate.user_metadata = { full_name: fullName, phone: data.phone || currentDetails["phone"] };
 
       if (Object.keys(authUpdate).length > 0) {
         await supabaseAdmin.auth.admin.updateUserById(data.id, authUpdate);
