@@ -499,11 +499,11 @@ export const updateTransaction = createServerFn({ method: "POST" })
       pending: "Pending",
       declined: "Reversed",
     };
-    updateAdminTransaction(data.id, {
+    updateAdminTransaction(data.id, Object.fromEntries(Object.entries({
       description: data.narration,
       date: data.date ? data.date.replace("T", " ") : undefined,
       status: data.status ? statusMap[data.status] : undefined,
-    });
+    }).filter(([, v]) => v !== undefined)) as Partial<AdminTx>);
 
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("tx-")) {
       return { ok: true as const };
@@ -511,7 +511,7 @@ export const updateTransaction = createServerFn({ method: "POST" })
 
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const patch: Record<string, unknown> = {};
+      const patch: { narration?: string; kind?: string; status?: string; created_at?: string } = {};
       if (data.narration !== undefined && data.narration.trim()) patch.narration = data.narration.trim();
       if (data.kind !== undefined) patch.kind = data.kind;
       if (data.status !== undefined) patch.status = data.status;
