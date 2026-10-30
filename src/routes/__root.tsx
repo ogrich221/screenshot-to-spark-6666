@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { BankLoading } from '@/components/bank-loading';
+import { LiveChat } from '@/components/live-chat';
 import building from '@/assets/bank-building.jpg';
 
 import { LangProvider } from "../components/site";
@@ -137,6 +138,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       {booting && <BankLoading />}
+      <LiveChat />
       <CustomerAuthProvider><LangProvider><Outlet /></LangProvider></CustomerAuthProvider>
     </QueryClientProvider>
   );

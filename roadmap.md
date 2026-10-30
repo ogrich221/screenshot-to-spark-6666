@@ -1,4 +1,6 @@
 # Account opening
+- [ ] Connect and verify the supplied Tawk.to live chat.
+- [ ] Recheck contact email links and domain mail routing; inbox delivery requires mailbox access.
 - [x] Add lumenbank@lumenbank.online as a clickable public contact email.
 - [ ] Connect the bank contact mailbox — blocked: Zoho connection approval was declined; no mailbox is connected.
 - [x] Make admin sign-in passcode-only; wrong and correct passcodes verified.
