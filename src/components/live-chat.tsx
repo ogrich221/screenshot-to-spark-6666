@@ -17,7 +17,6 @@ export function LiveChat() {
     script.async = true;
     script.src = embedUrl;
     script.charset = 'UTF-8';
-    script.crossOrigin = 'anonymous';
     document.head.appendChild(script);
   }, []);
   return null;
