@@ -1,4 +1,8 @@
 # Account opening
+- [x] Install the supplied Tawk.to live chat once after hydration; the provider serves the script successfully.
+- [ ] Verify the live chat window — blocked: Tawk.to blocks the automated browser used for verification.
+- [x] Recheck contact email links and Zoho mail routing; both are configured.
+- [ ] Verify contact inbox delivery — blocked: no mailbox access; SPF and DMARC records were not found.
 - [x] Add lumenbank@lumenbank.online as a clickable public contact email.
 - [ ] Connect the bank contact mailbox — blocked: Zoho connection approval was declined; no mailbox is connected.
 - [x] Make admin sign-in passcode-only; wrong and correct passcodes verified.
