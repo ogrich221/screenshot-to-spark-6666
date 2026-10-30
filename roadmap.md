@@ -1,4 +1,6 @@
 # Account opening
+- [x] Add lumenbank@lumenbank.online as a clickable public contact email.
+- [ ] Connect the bank contact mailbox — awaiting supported provider connection setup.
 - [x] Make admin sign-in passcode-only; wrong and correct passcodes verified.
 - [x] Restyle admin and customer dashboards with glass surfaces and a shared logo backdrop; isolated desktop/mobile surfaces, logo loading and navigation/localization tests verified. Signed-in page verification remains blocked by the requesting user's missing auth account.
 - [x] Refresh profile palette, add physical/virtual card designs and utility bill previews, add wire bank address, remove Add money and the disconnected-services banner; isolated interactions and mobile layout verified.

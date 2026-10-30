@@ -166,11 +166,12 @@ export function CTA() {
 export function Footer() {
   return (
     <Localized><footer className="border-t border-border">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 md:grid-cols-5">
-        <div>
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 md:grid-cols-6">
+        <div className="md:col-span-2">
           <p className="font-display text-lg font-bold tracking-wider text-gold">LUMEN</p>
           <p className="mt-2 text-sm text-muted-foreground">Transparent by design.</p>
           <p className="mt-3 text-sm text-muted-foreground">Contact us: <span className="font-semibold text-primary">+1 (800) LB</span></p>
+          <a href="mailto:lumenbank@lumenbank.online" data-no-translate className="mt-2 block break-all text-sm font-semibold text-primary hover:underline">lumenbank@lumenbank.online</a>
         </div>
         {([
           ["Products", [["Personal banking", "/how-it-works"], ["Savings & goals", "/savings"], ["Fees & pricing", "/pricing"]]],
