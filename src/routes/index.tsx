@@ -7,6 +7,7 @@ import building from "@/assets/bank-building.jpg";
 import staffDesk from "@/assets/staff-desk.jpg";
 import manager from "@/assets/branch-manager.jpg";
 import { Button } from '@/components/ui/button';
+import { EarthGlobe } from '@/components/earth-globe';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -171,44 +172,9 @@ const COUNTRIES: { name: string; lat: number; lng: number }[] = [
 ];
 
 function Globe() {
-  const R = 88; // globe radius in px (globe is 176px)
-  const dot = (lat: number, lng: number) => {
-    const la = (lat * Math.PI) / 180;
-    const lo = (lng * Math.PI) / 180;
-    return {
-      x: R * Math.cos(la) * Math.sin(lo),
-      y: -R * Math.sin(la),
-      z: R * Math.cos(la) * Math.cos(lo),
-    };
-  };
   return (
-    <Localized><div className="mt-10 flex items-center gap-6">
-      <div className="globe-scene shrink-0" role="img" aria-label="Spinning globe highlighting the 12 countries Lumen Bank operates from">
-        <div className="globe-tilt">
-          <div className="globe">
-            {[0, 30, 60, 90, 120, 150].map((a) => (
-              <div key={a} className="globe-ring" style={{ transform: `rotateY(${a}deg)` }} />
-            ))}
-            <div className="globe-ring" style={{ transform: "rotateX(90deg)" }} />
-            {COUNTRIES.map((c, i) => {
-              const p = dot(c.lat, c.lng);
-              return (
-                <div
-                  key={c.name}
-                  className="globe-dot"
-                  title={c.name}
-                  style={{
-                    left: R - 4.5,
-                    top: R - 4.5,
-                    transform: `translate3d(${p.x}px, ${p.y}px, ${p.z}px)`,
-                    animationDelay: `${i * 0.22}s`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </div>
+    <Localized><div className="mt-10 flex flex-col items-center gap-6 sm:flex-row">
+      <EarthGlobe countries={COUNTRIES} />
       <div>
         <p className="text-sm font-semibold uppercase tracking-widest text-primary">Banking across 12 countries</p>
         <p className="mt-2 max-w-xs text-sm text-muted-foreground">We operate from 12 countries around the world, so your money moves with you.</p>
