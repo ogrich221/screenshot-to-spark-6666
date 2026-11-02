@@ -1,7 +1,7 @@
 import { PasswordInput } from '@/components/ui/password-input';
 import { Localized } from '@/components/localized';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useServerFn } from '@tanstack/react-start';
 import { format, parseISO } from 'date-fns';
 import { ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2, Clock3, Fingerprint, LockKeyhole, Save, ShieldCheck, UserRound, Mail, KeyRound, Wallet, LoaderCircle } from 'lucide-react';
