@@ -37,7 +37,9 @@ export function AccountOnboarding() {
   const [legal, setLegal] = useState<'terms' | 'privacy' | null>(null); const [verified, setVerified] = useState(false); const [dateOpen, setDateOpen] = useState(false);
   const getCustomer = useServerFn(readCustomer); const saveDraft = useServerFn(saveCustomerDraft); const openAccount = useServerFn(openCustomerAccount);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const navigate = useNavigate();
   useEffect(() => { titleRef.current?.focus(); }, [step, started, success]);
+  useEffect(() => { if (success) void navigate({ to: '/dashboard', replace: true }); }, [success, navigate]);
   useEffect(() => {
     if (!user) { setDetails(blankDetails); setSuccess(false); setStarted(false); setPin(''); setConfirmPin(''); setAnswers(['', '', '']); return; }
     let alive = true; setInitializing(true);
