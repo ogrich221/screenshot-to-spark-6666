@@ -1,4 +1,5 @@
 # Account opening
+- [ ] Repair and verify live admin customer listing and creation; never hide connection errors behind sample customers.
 - [x] Install the supplied Tawk.to live chat once after hydration; the provider serves the script successfully.
 - [ ] Verify the live chat window — blocked: Tawk.to blocks the automated browser used for verification.
 - [x] Recheck contact email links and Zoho mail routing; both are configured.
