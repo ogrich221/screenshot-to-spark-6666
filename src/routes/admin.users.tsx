@@ -8,6 +8,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Edit2,
+  RefreshCw,
   Phone,
   Mail,
   Trash2,
@@ -16,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { PageHeader, Panel, Empty, StatusBadge, btnPrimary, btnGhost, input } from "@/components/admin/ui";
+import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
   createUser,
@@ -57,7 +59,7 @@ function str(d: Record<string, unknown> | undefined, k: string): string {
   return typeof v === "string" ? v : "";
 }
 
-function UsersPage() {
+export function UsersPage() {
   loadAdminData();
   const qc = useQueryClient();
   const list = useServerFn(listUsers);
@@ -66,7 +68,7 @@ function UsersPage() {
   const updateProfile = useServerFn(updateUserProfile);
   const postTx = useServerFn(postTransaction);
 
-  const users = useQuery({ queryKey: ["admin-users"], queryFn: () => list() });
+  const users = useQuery({ queryKey: ["admin-users"], queryFn: () => list(), refetchInterval: 15000, refetchOnMount: "always" });
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [confirm, setConfirm] = useState<AdminUser | null>(null);
@@ -134,6 +136,7 @@ function UsersPage() {
     onSuccess: (r) => {
       if (!r.ok) { toast.error(r.error); return; }
       toast.success(`User ${form.email} created. Share the password with them securely.`);
+      setSearch("");
       setForm({ name: "", email: "", password: "" });
       qc.invalidateQueries({ queryKey: ["admin-users"] });
     },
@@ -260,13 +263,16 @@ function UsersPage() {
 
         {/* All users list */}
         <Panel title={`All users (${allUsers.length})`} className="lg:col-span-2">
-          <div className="mb-4">
+          <div className="mb-4 flex gap-2">
             <input
               placeholder="Search users by name, email, or phone…"
               className={`${input} h-9 w-full text-xs`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            <Button variant="outline" size="icon" aria-label="Refresh users" title="Refresh users" disabled={users.isFetching} onClick={() => { void users.refetch(); }}>
+              <RefreshCw className={users.isFetching ? "animate-spin" : ""} />
+            </Button>
           </div>
 
           {users.isLoading ? (
