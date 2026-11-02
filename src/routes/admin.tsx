@@ -73,12 +73,7 @@ const ADMIN_SESSION_KEY = "lumen_admin_unlocked";
 
 function AdminLayout() {
   const check = useServerFn(checkAdmin);
-  const [gate, setGate] = useState<"passcode" | "loading" | "denied" | "ok">(() => {
-    if (typeof window !== "undefined" && window.sessionStorage?.getItem(ADMIN_SESSION_KEY) === "true") {
-      return "loading";
-    }
-    return "passcode";
-  });
+  const [gate, setGate] = useState<"passcode" | "loading" | "denied" | "ok">("loading");
   const [email, setEmail] = useState("");
 
   const onPasscodeSuccess = async () => {
@@ -92,7 +87,7 @@ function AdminLayout() {
       const r = await check();
       setGate(r.isAdmin ? "ok" : "denied");
     } catch {
-      setGate("ok");
+      setGate("denied");
     }
   };
 
@@ -111,10 +106,11 @@ function AdminLayout() {
         const r = await check();
         if (live) setGate(r.isAdmin ? "ok" : "denied");
       } catch {
-        if (live) setGate("ok");
+        if (live) setGate("denied");
       }
     };
     run();
+    return () => { live = false; };
   }, [check]);
 
   if (gate !== "ok") {
@@ -154,12 +150,7 @@ function PasscodeForm({ onSuccess }: { onSuccess: () => void }) {
         onSuccess();
       }
     } catch {
-      // In preview or offline mode, accept valid length
-      if (passcode.length >= 4) {
-        onSuccess();
-      } else {
-        setError("Could not sign in. Please verify your passcode.");
-      }
+      setError("Could not sign in. Please verify your passcode.");
     }
     setBusy(false);
   }}>

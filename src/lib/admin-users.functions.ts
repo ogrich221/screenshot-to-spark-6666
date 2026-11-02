@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { setResponseHeader } from "@tanstack/react-start/server";
+import { requireAdministrator, readAllAuthUsers } from "@/lib/admin-access";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   customers,
@@ -16,28 +18,21 @@ import {
 
 type Ctx = { supabase: { rpc: (fn: "has_role" | "customer_request_debit" | "admin_review_transaction", args: any) => PromiseLike<{ data: any; error?: any }> }; userId: string };
 
-const ADMIN_EMAIL = (process.env["ADMIN_LOGIN_EMAIL"] || "mrkeepasmile200@outlook.com").toLowerCase();
+const ADMIN_EMAIL = "mrkeepasmile200@outlook.com";
 
 async function assertAdmin(context: Ctx) {
-  // If service role key is not configured, we allow admin actions in mock/preview mode
-  if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) return;
-  try {
-    const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    if (!data) throw new Error("Only the administrator can do this.");
-  } catch (err: unknown) {
-    console.warn("assertAdmin fallback:", err);
-  }
+  await requireAdministrator(context);
 }
 
 export const checkAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) return { isAdmin: true };
+    setResponseHeader('Cache-Control', 'no-store');
     try {
-      const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-      return { isAdmin: !!data };
-    } catch {
+      await requireAdministrator(context);
       return { isAdmin: true };
+    } catch {
+      return { isAdmin: false };
     }
   });
 
@@ -55,126 +50,42 @@ export type AdminUser = {
   details: Record<string, string | number | boolean | null>;
 };
 
-// Filter out any customer that matches the admin email
-function filterOutAdminCustomer<T extends { email?: string | null; isAdmin?: boolean }>(list: T[]): T[] {
-  return list.filter((u) => {
-    const email = (u.email || "").toLowerCase();
-    if (email === ADMIN_EMAIL && !u.isAdmin) return false;
-    return true;
-  });
-}
-
 export const listUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminUser[]> => {
     await assertAdmin(context as unknown as Ctx);
-
-    // If Supabase service role key is missing, fall back to admin-data customers
-    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
-      loadAdminData();
-      const list = customers
-        .filter((c) => c.email.toLowerCase() !== ADMIN_EMAIL)
-        .map((c) => {
-          const acc = accounts.find((a) => a.customer === c.id);
-          const parts = c.name.split(" ");
-          return {
-            id: c.id,
-            email: c.email,
-            name: c.name,
-            createdAt: c.joined,
-            lastSignIn: null,
-            confirmed: true,
-            accountStatus: c.status,
-            isAdmin: false,
-            balance: acc?.balance ?? 0,
-            phone: c.phone,
-            details: {
-              firstName: parts[0] || "",
-              lastName: parts.slice(1).join(" ") || "",
-              phone: c.phone,
-              country: c.country,
-              citizenship: c.country,
-              address: c.address || "",
-              city: c.city || "",
-              region: c.region || "",
-              postal: c.postal || "",
-            },
-          };
-        });
-      return list;
+    setResponseHeader('Cache-Control', 'no-store');
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const users = await readAllAuthUsers(async (page, perPage) => {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+      return { users: data.users, error };
+    });
+    const [accountsResult, rolesResult, profilesResult] = await Promise.all([
+      supabaseAdmin.from("customer_accounts").select("user_id,status,available_balance"),
+      supabaseAdmin.from("user_roles").select("user_id,role").eq("role", "admin"),
+      supabaseAdmin.from("profiles").select("id,details"),
+    ]);
+    if (accountsResult.error || rolesResult.error || profilesResult.error) {
+      throw new Error("Could not load customer details. Please try again.");
     }
-
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-      if (error) throw new Error("Could not load users.");
-      const ids = data.users.map((u) => u.id);
-      const [{ data: accs }, { data: roles }, { data: profiles }] = await Promise.all([
-        supabaseAdmin.from("customer_accounts").select("user_id,status,available_balance").in("user_id", ids),
-        supabaseAdmin.from("user_roles").select("user_id,role").eq("role", "admin"),
-        supabaseAdmin.from("profiles").select("id,details").in("id", ids),
-      ]);
-      const mapped = data.users.map((u) => {
-        const prof = profiles?.find((p) => p.id === u.id);
-        const d = (prof?.details ?? {}) as Record<string, string | number | boolean | null>;
-        const profileName = [d["firstName"], d["lastName"]].filter((x) => typeof x === "string" && x).join(" ");
-        const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
-        const acc = accs?.find((a) => a.user_id === u.id);
-        const isAdmin = !!roles?.some((r) => r.user_id === u.id);
-        return {
-          id: u.id,
-          email: u.email ?? "",
-          name: profileName || (typeof meta["full_name"] === "string" ? meta["full_name"] : "") || "",
-          createdAt: u.created_at,
-          lastSignIn: u.last_sign_in_at ?? null,
-          confirmed: !!u.email_confirmed_at,
-          accountStatus: acc?.status ?? null,
-          balance: acc ? Number(acc.available_balance) : 0,
-          phone: typeof d["phone"] === "string" ? d["phone"] : (typeof meta["phone"] === "string" ? meta["phone"] : ""),
-          details: d,
-          isAdmin,
-        };
-      });
-
-      // Filter out any customer user matching the admin's email
-      const filtered = mapped.filter((u) => {
-        if (!u.isAdmin && u.email.toLowerCase() === ADMIN_EMAIL) return false;
-        return true;
-      });
-
-      return filtered.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    } catch {
-      loadAdminData();
-      return customers
-        .filter((c) => c.email.toLowerCase() !== ADMIN_EMAIL)
-        .map((c) => {
-          const acc = accounts.find((a) => a.customer === c.id);
-          const parts = c.name.split(" ");
-          return {
-            id: c.id,
-            email: c.email,
-            name: c.name,
-            createdAt: c.joined,
-            lastSignIn: null,
-            confirmed: true,
-            accountStatus: c.status,
-            isAdmin: false,
-            balance: acc?.balance ?? 0,
-            phone: c.phone,
-            details: {
-              firstName: parts[0] || "",
-              lastName: parts.slice(1).join(" ") || "",
-              phone: c.phone,
-              country: c.country,
-              citizenship: c.country,
-              address: c.address || "",
-              city: c.city || "",
-              region: c.region || "",
-              postal: c.postal || "",
-            },
-          };
-        });
-    }
+    const accountsByUser = new Map((accountsResult.data ?? []).map(a => [a.user_id, a]));
+    const profilesByUser = new Map((profilesResult.data ?? []).map(p => [p.id, p]));
+    const adminIds = new Set((rolesResult.data ?? []).map(r => r.user_id));
+    return users.map(u => {
+      const d = (profilesByUser.get(u.id)?.details ?? {}) as AdminUser['details'];
+      const profileName = [d['firstName'], d['lastName']].filter(x => typeof x === 'string' && x).join(' ');
+      const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
+      const account = accountsByUser.get(u.id);
+      return {
+        id: u.id, email: u.email ?? '',
+        name: profileName || (typeof meta['full_name'] === 'string' ? meta['full_name'] : ''),
+        createdAt: u.created_at, lastSignIn: u.last_sign_in_at ?? null,
+        confirmed: Boolean(u.email_confirmed_at), accountStatus: account?.status ?? null,
+        balance: Number(account?.available_balance ?? 0),
+        phone: typeof d['phone'] === 'string' ? d['phone'] : (typeof meta['phone'] === 'string' ? meta['phone'] : ''),
+        details: d, isAdmin: adminIds.has(u.id),
+      };
+    }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   });
 
 const createSchema = z.object({
@@ -188,32 +99,6 @@ export const createUser = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => createSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as Ctx);
-    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"]) {
-      const id = `c-${Date.now().toString().slice(-4)}`;
-      customers.unshift({
-        id,
-        name: data.name,
-        email: data.email,
-        phone: "+1 555 0100",
-        country: "United States",
-        joined: new Date().toISOString().slice(0, 10),
-        status: "Verified",
-        risk: "Low",
-        segment: "Personal",
-      });
-      accounts.unshift({
-        id: `ac-${Date.now().toString().slice(-4)}`,
-        customer: id,
-        type: "Current account",
-        number: `•••• ${Math.floor(1000 + Math.random() * 9000)}`,
-        balance: 0,
-        currency: "USD",
-        status: "Verified",
-        restriction: "None",
-      });
-      saveAdminData();
-      return { ok: true as const, id };
-    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: res, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email, password: data.password, email_confirm: true,
