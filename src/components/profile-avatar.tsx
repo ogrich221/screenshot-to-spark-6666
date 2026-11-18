@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 /** Owner-only profile photo stored in the private avatars bucket. */
 export function useAvatar() {
@@ -35,18 +36,18 @@ export function AvatarImage({ url, initials, className }: { url: string | null; 
   </span>;
 }
 
-export function AvatarEditor({ avatar, initials }: { avatar: ReturnType<typeof useAvatar>; initials: string }) {
+export function AvatarEditor({ avatar, initials, compact = false }: { avatar: ReturnType<typeof useAvatar>; initials: string; compact?: boolean }) {
   const ref = useRef<HTMLInputElement>(null);
-  return <div className="flex items-center gap-4">
+  return <div className={cn('flex shrink-0 gap-4', compact ? 'flex-col items-start gap-2' : 'items-center')}>
     <div className="relative">
-      <AvatarImage url={avatar.url} initials={initials} className="size-20 text-2xl" />
-      <button type="button" onClick={() => ref.current?.click()} aria-label="Change profile photo" className="absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border border-border bg-background text-primary">
+      <AvatarImage url={avatar.url} initials={initials} className={compact ? 'size-16 text-xl' : 'size-20 text-2xl'} />
+      <Button variant="outline" size="icon" type="button" disabled={avatar.busy} onClick={() => ref.current?.click()} aria-label="Change profile photo" title="Change profile photo" className="absolute -bottom-1 -right-1 size-8 rounded-full bg-background text-primary">
         {avatar.busy ? <Loader2 className="size-4 animate-spin" /> : <Camera className="size-4" />}
-      </button>
+      </Button>
     </div>
     <div>
-      <button type="button" onClick={() => ref.current?.click()} className="text-sm font-semibold text-primary hover:underline">{avatar.url ? 'Change photo' : 'Add photo'}</button>
-      <p className="text-xs text-muted-foreground">JPG or PNG, up to 5 MB</p>
+      <Button variant="link" type="button" disabled={avatar.busy} onClick={() => ref.current?.click()} className="h-auto p-0 text-sm font-semibold">{avatar.url ? 'Change photo' : 'Add photo'}</Button>
+      {!compact && <p className="text-xs text-muted-foreground">JPG or PNG, up to 5 MB</p>}
       {avatar.error && <p role="alert" className="text-xs text-destructive">{avatar.error}</p>}
     </div>
     <input ref={ref} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) void avatar.upload(f); e.target.value = ''; }} />

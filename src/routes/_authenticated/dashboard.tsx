@@ -115,7 +115,7 @@ function Page() {
     <main className="mx-auto max-w-6xl px-5 py-6">
       <div className="mb-4"><BackLink home /></div>
       <section className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-center">
-        <AvatarImage url={avatar.url} initials={initials} className="size-16 text-xl" />
+        <AvatarEditor avatar={avatar} initials={initials} compact />
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{greet},</p>
           <h1 className="truncate text-2xl font-semibold sm:text-3xl" data-no-translate>{name}</h1>
