@@ -12,6 +12,7 @@
 - Admin sign-in is passcode-only via a public server function that compares against a server secret and signs in the configured admin; role checks still gate every admin action.
 - Admin Customers and Users & Profiles share the same live customer-management view and admin-users query; live read failures must never fall back to sample customers, so new registrations stay visible.
 - Administrator permissions fail closed through the server role lookup; unavailable role checks never grant access.
+- Account status uses the shared validated status set; admin saves report write failures and customer profiles refresh their saved account data periodically so status changes appear without signing out.
 - Public pages share header/footer via Shell in src/components/site.tsx so navigation stays consistent.
 - The homepage Earth loads Three.js only after hydration and rotates its surface and country markers together; respect reduced motion and dispose GPU resources on unmount.
 - Live chat loads the supplied Tawk.to embed once after hydration without forwarding account, balance, or authentication data.

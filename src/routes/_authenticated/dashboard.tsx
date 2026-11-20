@@ -18,8 +18,9 @@ import { readCustomer } from '@/lib/onboarding.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { useT } from '@/components/site';
 import { Button } from '@/components/ui/button';
+import { StatusBadge } from '@/components/admin/ui';
 
-const customerQuery = queryOptions({ queryKey: ['customer-account'], queryFn: () => readCustomer() });
+const customerQuery = queryOptions({ queryKey: ['customer-account'], queryFn: () => readCustomer(), refetchInterval: 10000, refetchOnWindowFocus: true });
 export const Route = createFileRoute('/_authenticated/dashboard')({
   beforeLoad: async () => {
     const r = await checkAdmin().catch(() => ({ isAdmin: false }));
@@ -134,7 +135,7 @@ function Page() {
           <div className="py-2 lg:col-span-2">
             <div className="flex items-center justify-between gap-3">
               <span className="flex gap-2 font-semibold"><Wallet className="size-5 text-primary" />LUMEN account</span>
-              <div className="flex items-center gap-3"><span className="flex gap-1 text-xs text-success"><CheckCircle2 className="size-4" />{data.account.status}</span>
+              <div className="flex items-center gap-3"><StatusBadge s={data.account.status} />
                 <Button variant="outline" size="icon" onClick={() => setShow(s => !s)} aria-label={show ? 'Hide balances' : 'Show balances'} aria-pressed={show} className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-primary">{show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</Button></div>
             </div>
             <dl className="mt-8">

@@ -161,6 +161,7 @@ export function UsersPage() {
         data: {
           id: editingUser.id,
           ...profileForm,
+          accountStatus: editingUser.accountStatus ? profileForm.accountStatus as 'Active' | 'Verified' | 'Review needed' | 'Temporarily restricted' | 'Closed' : undefined,
         },
       });
     },
@@ -492,6 +493,7 @@ export function UsersPage() {
                 <label className="block text-sm">
                   Account Status
                   <select
+                    disabled={!editingUser.accountStatus}
                     className={`${input} mt-1 w-full`}
                     value={profileForm.accountStatus}
                     onChange={(e) => setProfileForm({ ...profileForm, accountStatus: e.target.value })}

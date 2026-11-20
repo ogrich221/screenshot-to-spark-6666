@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { accountStatusSchema } from '@/lib/account-status';
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { requireAdministrator, readAllAuthUsers } from "@/lib/admin-access";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -425,7 +426,7 @@ const profileSchema = z.object({
   region: z.string().trim().max(100).optional(),
   postal: z.string().trim().max(50).optional(),
   country: z.string().trim().max(100).optional(),
-  accountStatus: z.string().trim().max(50).optional(),
+  accountStatus: accountStatusSchema.optional(),
 });
 
 export const updateUserProfile = createServerFn({ method: "POST" })
@@ -447,12 +448,13 @@ export const updateUserProfile = createServerFn({ method: "POST" })
     }).filter(([, v]) => v !== undefined)));
 
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] || data.id.startsWith("c-")) {
-      return { ok: true as const };
+      return { ok: false as const, error: 'Customer profile could not be saved. Please try again.' };
     }
 
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: prof } = await supabaseAdmin.from("profiles").select("*").eq("id", data.id).maybeSingle();
+      const { data: prof, error: profileReadError } = await supabaseAdmin.from("profiles").select("*").eq("id", data.id).maybeSingle();
+      if (profileReadError || !prof) return { ok: false as const, error: 'Customer profile could not be loaded.' };
       const currentDetails = (prof?.details ?? {}) as Record<string, string | number | boolean | null>;
 
       const updatedDetails: Record<string, string | number | boolean | null> = {
@@ -469,27 +471,29 @@ export const updateUserProfile = createServerFn({ method: "POST" })
         ...(data.country !== undefined ? { country: data.country } : {}),
       };
 
-      await supabaseAdmin.from("profiles").upsert({
+      const { error: profileError } = await supabaseAdmin.from("profiles").upsert({
         id: data.id,
         details: updatedDetails,
         updated_at: new Date().toISOString(),
       });
+      if (profileError) return { ok: false as const, error: 'Customer profile could not be saved.' };
 
       const authUpdate: { email?: string; user_metadata?: Record<string, unknown> } = {};
       if (data.email) authUpdate.email = data.email;
       if (fullName) authUpdate.user_metadata = { full_name: fullName, phone: data.phone || currentDetails["phone"] };
 
       if (Object.keys(authUpdate).length > 0) {
-        await supabaseAdmin.auth.admin.updateUserById(data.id, authUpdate);
+        const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, authUpdate);
+        if (error) return { ok: false as const, error: 'Customer sign-in details could not be updated.' };
       }
 
       if (data.accountStatus) {
-        const { data: acc } = await supabaseAdmin.from("customer_accounts").select("id").eq("user_id", data.id).maybeSingle();
-        if (acc) {
-          await supabaseAdmin.from("customer_accounts").update({ status: data.accountStatus }).eq("id", acc.id);
-        }
+        const { data: updated, error } = await supabaseAdmin.from("customer_accounts").update({ status: data.accountStatus }).eq("user_id", data.id).select('id,status').maybeSingle();
+        if (error || !updated) return { ok: false as const, error: 'Account status could not be saved. The customer must have an opened account.' };
       }
-    } catch {}
+    } catch {
+      return { ok: false as const, error: 'Customer profile could not be saved. Please try again.' };
+    }
 
     return { ok: true as const };
   });
