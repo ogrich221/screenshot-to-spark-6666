@@ -1,5 +1,6 @@
 # Account opening
-- [ ] Verify admin account status saves and updates the signed-in customer profile.
+- [x] Enable the five admin account statuses in the database; verify saved restricted status on a signed-in temporary customer profile.
+- [ ] Verify status saving through the admin form — blocked: administrator sign-in verification was declined.
 - [x] Repair live admin customer listing and creation; verified a temporary customer appears in Customers and Users after navigation, refresh and reload, then removed it without changing existing customers.
 - [x] Install the supplied Tawk.to live chat once after hydration; the provider serves the script successfully.
 - [ ] Verify the live chat window — blocked: Tawk.to blocks the automated browser used for verification.

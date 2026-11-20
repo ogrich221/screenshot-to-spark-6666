@@ -78,6 +78,13 @@
       "when": 1793221000000,
       "tag": "0010_immediate_debit_pending_approvals",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795181122322,
+      "tag": "0011_allow_customer_account_status_updates",
+      "breakpoints": true
     }
   ]
 }
